@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation Control | Game Master</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    </style>
+    <link rel="stylesheet" href="styles/master.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/simulation-theme.css">
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-brand">
+            <a href="index.html" class="brand-mark" title="Home"><img src="img/homebutton_99695.svg" alt="Home"
+                    style="width: 100%; height: 100%;"></a>
+            <div class="header-title">
+                <h1>Game Master Control</h1>
+                <p id="moveEpoch">Move 1: Epoch 1 (2027-2030)</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <div class="section-nav">
+                <div class="nav-section-label">Monitoring</div>
+
+                <div class="nav-item active" data-section="dashboard">
+                    <div class="nav-content">
+                        <div class="nav-title">Live Dashboard</div>
+                        <div class="nav-subtitle">Real-time status</div>
+                    </div>
+                </div>
+
+                <div class="nav-item" data-section="timeline">
+                    <div class="nav-content">
+                        <div class="nav-title">Master Timeline</div>
+                        <div class="nav-subtitle">All team events</div>
+                    </div>
+                    <span class="nav-badge" id="timelineBadge">0</span>
+                </div>
+
+                <div class="nav-section-label">Adjudication</div>
+
+                <div class="nav-item" data-section="actions">
+                    <div class="nav-content">
+                        <div class="nav-title">Review Actions</div>
+                        <div class="nav-subtitle">Team submissions</div>
+                    </div>
+                    <span class="nav-badge" id="actionsBadge">0</span>
+                </div>
+
+                <div class="nav-item" data-section="requests">
+                    <div class="nav-content">
+                        <div class="nav-title">RFI Management</div>
+                        <div class="nav-subtitle">Requests & responses</div>
+                    </div>
+                    <span class="nav-badge" id="requestsBadge">0</span>
+                </div>
+
+                <div class="nav-section-label">Administration</div>
+
+                <div class="nav-item" data-section="sessions">
+                    <div class="nav-content">
+                        <div class="nav-title">Session Control</div>
+                        <div class="nav-subtitle">Create & manage</div>
+                    </div>
+                </div>
+
+                <div class="nav-item" data-section="users">
+                    <div class="nav-content">
+                        <div class="nav-title">User Management</div>
+                        <div class="nav-subtitle">Roles & access</div>
+                    </div>
+                </div>
+
+                <div class="nav-item" data-section="admin">
+                    <div class="nav-content">
+                        <div class="nav-title">Game Control</div>
+                        <div class="nav-subtitle">Reset & Archive</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-timer">
+                <div class="timer-label">Global Timer</div>
+                <div class="timer" id="timer">90:00</div>
+                <div class="timer-controls">
+                    <button class="timer-btn" id="startTimer">Start</button>
+                    <button class="timer-btn" id="pauseTimer">Pause</button>
+                    <button class="timer-btn" id="resetTimer">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+
+            <div class="section-content active" id="dashboard">
+                <div class="section-header">
+                    <h2>Live Dashboard</h2>
+                    <p>Current simulation status and incoming data feeds</p>
+                </div>
+
+                <div class="metric-grid">
+                    <div class="metric-box">
+                        <div class="metric-val" id="totalActions">0</div>
+                        <div class="metric-label">Decisions Logged</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val" id="totalNotes">0</div>
+                        <div class="metric-label">Observer Notes</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-val" id="activePhase">Phase 1</div>
+                        <div class="metric-label">Current Status</div>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>Recent Activity</h3>
+                    <div id="recentActivityFeed" style="max-height: 300px; overflow-y: auto;">
+                        <div class="empty-state">Waiting for team input...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-content" id="admin">
+                <div class="section-header">
+                    <h2>Game Control</h2>
+                    <p>Simulation management, archiving, and system reset</p>
+                </div>
+
+                <div class="control-card">
+                    <h3>Game Flow Control</h3>
+                    <p>Control the progression of moves and phases during the simulation.</p>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-primary" onclick="advancePhase()">Advance Phase</button>
+                        <button class="btn btn-primary" onclick="advanceMove()">Advance Move</button>
+                        <button class="btn btn-secondary" onclick="resetPhase()">Reset Phase</button>
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <h3>Data Management</h3>
+                    <p>Collate and download all data generated in this simulation run.</p>
+                    <div class="export-actions">
+                        <button class="btn btn-secondary" onclick="exportFullArchive()">
+                            Download Full Archive (JSON)
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportTabularData()">
+                            Download CSV/XLSX
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportPdfSummary()">
+                            Download PDF Summary
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportZipBundle()">
+                            Download ZIP (All Formats)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="danger-zone">
+                    <h3>Danger Zone</h3>
+                    <p>These actions are destructive and cannot be undone.</p>
+                    <div style="margin-top: 15px;">
+                        <button class="danger-btn" onclick="hardResetSimulation()">
+                            Initialize New Game (Wipe Data)
+                        </button>
+                    </div>
+                    <p style="font-size: 0.8rem; margin-top: 10px; color: #dc3545;">
+                        This will clear all LocalStorage, erase timelines, and reset the clock.
+                    </p>
+                </div>
+            </div>
+
+            <div class="section-content" id="timeline">
+                <div class="section-header">
+                    <h2>Master Timeline</h2>
+                    <button class="btn btn-secondary" onclick="renderTimeline()">Refresh</button>
+                </div>
+                <div class="team-timeline" id="masterTimelineFeed"></div>
+            </div>
+
+            <div class="section-content" id="actions">
+                <div class="section-header">
+                    <h2>Action Review & Adjudication</h2>
+                    <button class="btn btn-secondary" onclick="refreshActions()">Refresh</button>
+                </div>
+                <div id="actionsFeed"></div>
+            </div>
+
+            <div class="section-content" id="requests">
+                <div class="section-header">
+                    <h2>RFI Management</h2>
+                    <button class="btn btn-secondary" onclick="refreshRequests()">Refresh</button>
+                </div>
+                <div id="requestsFeed"></div>
+            </div>
+
+            <div class="section-content" id="sessions">
+                <div class="section-header">
+                    <h2>Session Management</h2>
+                    <p>Create new sessions or join existing ones</p>
+                </div>
+
+                <div class="control-card">
+                    <h3>Current Session</h3>
+                    <div id="currentSessionInfo"
+                        style="padding: 15px; background: #f8fafc; border-radius: 6px; margin-bottom: 20px;">
+                        <p id="sessionStatus">Not connected to a session</p>
+                        <p id="sessionId"
+                            style="font-family: monospace; font-size: 0.9rem; color: #64748b; margin-top: 5px;"></p>
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <h3>Create New Session</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <input type="text" id="newSessionName" placeholder="Session name (e.g., 'Simulation Run 1')"
+                            style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                        <button class="btn btn-primary" onclick="createNewSession()">Create Session</button>
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <h3>Available Sessions</h3>
+                    <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">All active sessions in the database.
+                        Click "Select" to manage a session, or "Delete" to archive it.</p>
+                    <div id="availableSessionsList" style="min-height: 100px; max-height: 400px; overflow-y: auto;">
+                        <div class="empty-state">Loading sessions...</div>
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                        <button class="btn btn-secondary" onclick="loadAvailableSessions()">Refresh List</button>
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <h3>Select by Session ID</h3>
+                    <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">Or manually enter a session ID to
+                        select and manage it</p>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <input type="text" id="joinSessionId" placeholder="Enter Session ID"
+                            style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                        <button class="btn btn-secondary" onclick="selectSessionById()">Select Session</button>
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <h3>Session Participants</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Users currently active in this session</p>
+                    <div id="sessionParticipants" style="min-height: 100px;">
+                        <div class="empty-state">No participants yet. Users will appear here when they join the session.
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                        <button class="btn btn-secondary" onclick="refreshParticipants()"
+                            style="margin-right: 10px;">Refresh</button>
+                        <button class="btn btn-secondary" onclick="showAddParticipantModal()">Add Participant
+                            Note</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-content" id="users">
+                <div class="section-header">
+                    <h2>User Management & Role Access</h2>
+                    <p>Manage role assignments and provide access credentials</p>
+                </div>
+
+                <div class="control-card">
+                    <h3>Role Passwords</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Share these passwords with team members to grant access
+                        to specific roles.</p>
+                    <div style="display: grid; gap: 15px;">
+                        <div
+                            style="padding: 15px; background: #f8fafc; border-radius: 6px; border-left: 4px solid #1a4480;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong style="display: block; margin-bottom: 5px;">Game Master (White
+                                        Cell)</strong>
+                                    <span style="font-family: monospace; font-size: 0.9rem; color: #64748b;">Password:
+                                        admin2025</span>
+                                </div>
+                                <button class="btn btn-secondary" onclick="copyPassword('admin2025', 'Game Master')"
+                                    style="padding: 6px 12px; font-size: 0.9rem;">Copy</button>
+                            </div>
+                            <p style="margin-top: 8px; font-size: 0.85rem; color: #666;">Full control panel access -
+                                adjudication, session management, data export</p>
+                        </div>
+
+                        <div
+                            style="padding: 15px; background: #f8fafc; border-radius: 6px; border-left: 4px solid #1a4480;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong style="display: block; margin-bottom: 5px;">Blue Team Facilitator</strong>
+                                    <span style="font-family: monospace; font-size: 0.9rem; color: #64748b;">Password:
+                                        facilitator2025</span>
+                                </div>
+                                <button class="btn btn-secondary"
+                                    onclick="copyPassword('facilitator2025', 'Blue Facilitator')"
+                                    style="padding: 6px 12px; font-size: 0.9rem;">Copy</button>
+                            </div>
+                            <p style="margin-top: 8px; font-size: 0.85rem; color: #666;">Submit strategic actions and
+                                information requests</p>
+                            <p style="margin-top: 5px; font-size: 0.85rem;"><a href="teams/blue/blue_facilitator.html"
+                                    target="_blank" style="color: #1a4480;">→ Access Facilitator Page</a></p>
+                        </div>
+
+                        <div
+                            style="padding: 15px; background: #f8fafc; border-radius: 6px; border-left: 4px solid #1a4480;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong style="display: block; margin-bottom: 5px;">Blue Team Notetaker</strong>
+                                    <span style="font-family: monospace; font-size: 0.9rem; color: #64748b;">Password:
+                                        notetaker2025</span>
+                                </div>
+                                <button class="btn btn-secondary"
+                                    onclick="copyPassword('notetaker2025', 'Blue Notetaker')"
+                                    style="padding: 6px 12px; font-size: 0.9rem;">Copy</button>
+                            </div>
+                            <p style="margin-top: 8px; font-size: 0.85rem; color: #666;">Record observations, dynamics
+                                analysis, and move completion</p>
+                            <p style="margin-top: 5px; font-size: 0.85rem;"><a href="teams/blue/blue_notetaker.html"
+                                    target="_blank" style="color: #1a4480;">→ Access Notetaker Page</a></p>
+                        </div>
+
+                        <div
+                            style="padding: 15px; background: #f8fafc; border-radius: 6px; border-left: 4px solid #8B1538;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong style="display: block; margin-bottom: 5px;">Red Team</strong>
+                                    <span style="font-family: monospace; font-size: 0.9rem; color: #64748b;">Password:
+                                        red_team</span>
+                                </div>
+                                <button class="btn btn-secondary" onclick="copyPassword('red_team', 'Red Team')"
+                                    style="padding: 6px 12px; font-size: 0.9rem;">Copy</button>
+                            </div>
+                            <p style="margin-top: 8px; font-size: 0.85rem; color: #666;">Adversary team access</p>
+                        </div>
+
+                        <div
+                            style="padding: 15px; background: #f8fafc; border-radius: 6px; border-left: 4px solid #115740;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong style="display: block; margin-bottom: 5px;">Green Team</strong>
+                                    <span style="font-family: monospace; font-size: 0.9rem; color: #64748b;">Password:
+                                        green_team</span>
+                                </div>
+                                <button class="btn btn-secondary" onclick="copyPassword('green_team', 'Green Team')"
+                                    style="padding: 6px 12px; font-size: 0.9rem;">Copy</button>
+                            </div>
+                            <p style="margin-top: 8px; font-size: 0.85rem; color: #666;">Allied team access</p>
+                        </div>
+
+                        <div
+                            style="padding: 15px; background: #f8fafc; border-radius: 6px; border-left: 4px solid #718096;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong style="display: block; margin-bottom: 5px;">Viewer/Observer</strong>
+                                    <span style="font-family: monospace; font-size: 0.9rem; color: #64748b;">Password:
+                                        observer</span>
+                                </div>
+                                <button class="btn btn-secondary" onclick="copyPassword('observer', 'Viewer')"
+                                    style="padding: 6px 12px; font-size: 0.9rem;">Copy</button>
+                            </div>
+                            <p style="margin-top: 8px; font-size: 0.85rem; color: #666;">Read-only access for observers
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <h3>Quick Access Links</h3>
+                    <p style="margin-bottom: 15px; color: #666;">Direct links to role pages for easy sharing:</p>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="teams/blue/blue_facilitator.html" target="_blank" class="btn btn-secondary"
+                            style="text-align: left; padding: 12px 16px;">
+                            Blue Team Facilitator →
+                        </a>
+                        <a href="teams/blue/blue_notetaker.html" target="_blank" class="btn btn-secondary"
+                            style="text-align: left; padding: 12px 16px;">
+                            Blue Team Notetaker →
+                        </a>
+                        <a href="teams/blue/blue_white_cell.html" target="_blank" class="btn btn-secondary"
+                            style="text-align: left; padding: 12px 16px;">
+                            Blue Team White Cell →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Adjudication Modal -->
+    <div id="adjudicationModal"
+        style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; overflow-y: auto;"
+        onclick="if(event.target === this) closeAdjudicationModal()">
+        <div style="max-width: 800px; margin: 50px auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);"
+            onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Adjudicate Action</h2>
+                <button onclick="closeAdjudicationModal()"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div id="adjudicationForm">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Outcome Verdict:</label>
+                    <select id="adj-outcome"
+                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="">Select outcome...</option>
+                        <option value="Success">Success</option>
+                        <option value="Partial Success">Partial Success</option>
+                        <option value="Fail">Fail</option>
+                        <option value="Backfire">Backfire</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Narrative:</label>
+                    <textarea id="adj-narrative" rows="4"
+                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"
+                        placeholder="Describe the outcome and its implications..."></textarea>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Vulnerabilities
+                        (comma-separated):</label>
+                    <input type="text" id="adj-vulnerabilities"
+                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"
+                        placeholder="e.g., Supply Chain Chokepoints, Cyber Vulnerabilities">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="closeAdjudicationModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitAdjudication()">Submit Adjudication</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Participant Modal -->
+    <div id="participantModal"
+        style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; overflow-y: auto;"
+        onclick="if(event.target === this) closeParticipantModal()">
+        <div style="max-width: 500px; margin: 50px auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);"
+            onclick="event.stopPropagation()">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Add Participant Note</h2>
+                <button onclick="closeParticipantModal()"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div id="participantForm" style="padding: 20px 24px;">
+                <div style="margin-bottom: 16px;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a; font-size: 0.875rem;">Client
+                        ID:</label>
+                    <input type="text" id="participantClientId"
+                        placeholder="Enter client ID (or leave blank for current user)" class="form-control"
+                        style="width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 0.9375rem; font-family: 'Inter', sans-serif; transition: all 0.2s ease;"
+                        onfocus="this.style.borderColor='#1a4480'; this.style.boxShadow='0 0 0 3px rgba(26, 68, 128, 0.1)'"
+                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a; font-size: 0.875rem;">Name/Note:</label>
+                    <input type="text" id="participantName" placeholder="e.g., 'John Doe - Facilitator'"
+                        class="form-control"
+                        style="width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 0.9375rem; font-family: 'Inter', sans-serif; transition: all 0.2s ease;"
+                        onfocus="this.style.borderColor='#1a4480'; this.style.boxShadow='0 0 0 3px rgba(26, 68, 128, 0.1)'"
+                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a; font-size: 0.875rem;">Role:</label>
+                    <select id="participantRole" class="form-control"
+                        style="width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 0.9375rem; font-family: 'Inter', sans-serif; transition: all 0.2s ease; background: #ffffff;"
+                        onfocus="this.style.borderColor='#1a4480'; this.style.boxShadow='0 0 0 3px rgba(26, 68, 128, 0.1)'"
+                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'">
+                        <option value="">Select role...</option>
+                        <option value="facilitator">Facilitator</option>
+                        <option value="notetaker">Notetaker</option>
+                        <option value="white">White Cell</option>
+                        <option value="observer">Observer</option>
+                    </select>
+                </div>
+            </div>
+            <div
+                style="padding: 16px 24px 24px; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeParticipantModal()">Cancel</button>
+                <button id="deleteParticipantBtn" class="btn btn-danger" onclick="deleteParticipantFromModal()"
+                    style="display: none; background: #dc3545; color: white; border-color: #dc3545;">Delete
+                    Participant</button>
+                <button class="btn btn-primary" onclick="saveParticipantNote()">Save Note</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RFI Response Modal -->
+    <div id="responseModal" class="modal-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); z-index: 99999; overflow-y: auto; padding: 20px;"
+        onclick="if(event.target === this) closeResponseModal()">
+        <div class="modal-content"
+            style="max-width: 700px; margin: 0 auto; background: #ffffff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1); padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+            onclick="event.stopPropagation()">
+            <div
+                style="padding: 24px 24px 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="font-size: 1.25rem; font-weight: 600; color: #1a4480; margin: 0;">Respond to RFI</h2>
+                <button onclick="closeResponseModal()" class="modal-close-btn"
+                    style="background: none; border: none; font-size: 24px; color: #718096; cursor: pointer; padding: 4px; line-height: 1; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s ease;">&times;</button>
+            </div>
+            <div id="responseForm" style="padding: 20px 24px;">
+                <div
+                    style="margin-bottom: 16px; padding: 16px; background: #f7f8fa; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <strong
+                        style="color: #1a1a1a; font-size: 0.875rem; display: block; margin-bottom: 8px;">Request:</strong>
+                    <p id="responseRequestText"
+                        style="margin: 0; color: #4a5568; line-height: 1.6; font-size: 0.9375rem;"></p>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a; font-size: 0.875rem;">Response:</label>
+                    <textarea id="responseText" rows="6" class="form-control"
+                        style="width: 100%; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 0.9375rem; font-family: 'Inter', sans-serif; transition: all 0.2s ease; resize: vertical; min-height: 120px;"
+                        placeholder="Enter your response to this RFI..."
+                        onfocus="this.style.borderColor='#1a4480'; this.style.boxShadow='0 0 0 3px rgba(26, 68, 128, 0.1)'"
+                        onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none'"></textarea>
+                </div>
+            </div>
+            <div
+                style="padding: 16px 24px 24px; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeResponseModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitResponse()">Send Response</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/modal-utils.js"></script>
+    <script src="js/data-layer.js"></script>
+    <script src="js/research-tracking.js"></script>
+    <script src="js/gamemaster.js"></script>
+</body>
+
+</html>

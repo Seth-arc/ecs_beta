@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete All Sessions - ESG Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #1a4480;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+        }
+
+        .warning strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .info {
+            background: #e7f3ff;
+            border: 2px solid #2196F3;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #0c5460;
+        }
+
+        .status {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 150px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .count {
+            background: #1a4480;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🗑️ Delete All Sessions</h1>
+
+        <div class="warning">
+            <strong>⚠️ WARNING: This action cannot be undone!</strong>
+            This will permanently delete ALL sessions from the Supabase database.
+            All game data, actions, requests, and timeline items will be lost.
+        </div>
+
+        <div class="info">
+            <strong>📋 What will be deleted:</strong>
+            • All sessions (active and archived)<br>
+            • All session data from LocalStorage<br>
+            • All session data from Supabase database<br>
+            • All related actions, requests, communications, and timeline items
+        </div>
+
+        <div class="count" id="sessionCount">Checking for sessions...</div>
+
+        <div class="status" id="statusLog">Initializing...</div>
+
+        <div class="button-group">
+            <button class="btn-danger" id="deleteBtn" onclick="deleteAllSessions()" disabled>
+                Delete All Sessions
+            </button>
+            <button class="btn-secondary" onclick="window.location.href='gamemaster.html'">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/util.js"></script>
+    <script src="js/data-layer.js"></script>
+
+    <script>
+        const statusLog = document.getElementById('statusLog');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const sessionCountEl = document.getElementById('sessionCount');
+        let totalSessions = 0;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+
+            const line = `[${timestamp}] ${prefix} ${message}`;
+            statusLog.innerHTML += `<div class="${className}">${line}</div>`;
+            statusLog.scrollTop = statusLog.scrollHeight;
+            console.log(line);
+        }
+
+        async function checkSessions() {
+            try {
+                log('Checking Supabase connection...');
+
+                if (!window.db) {
+                    throw new Error('Supabase client not initialized');
+                }
+
+                log('Fetching all sessions from Supabase...');
+
+                // Fetch ALL sessions regardless of status
+                const { data: sessions, error } = await window.db
+                    .from('sessions')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    throw error;
+                }
+
+                totalSessions = sessions ? sessions.length : 0;
+                sessionCountEl.textContent = `Found ${totalSessions} session(s) to delete`;
+
+                if (totalSessions > 0) {
+                    log(`Found ${totalSessions} sessions in database`, 'success');
+                    deleteBtn.disabled = false;
+
+                    // Show first 10 sessions
+                    const preview = sessions.slice(0, 10);
+                    log('Preview of sessions:');
+                    preview.forEach((session, index) => {
+                        log(`  ${index + 1}. ${session.name || 'Unnamed'} (${session.id.substring(0, 8)}...) - ${session.status || 'unknown'}`);
+                    });
+
+                    if (totalSessions > 10) {
+                        log(`  ... and ${totalSessions - 10} more sessions`);
+                    }
+                } else {
+                    log('No sessions found in database', 'success');
+                    sessionCountEl.textContent = 'No sessions found';
+                }
+
+            } catch (error) {
+                log(`ERROR: ${error.message}`, 'error');
+                console.error('Check sessions error:', error);
+                sessionCountEl.textContent = 'Error checking sessions';
+                deleteBtn.disabled = true;
+            }
+        }
+
+        async function deleteAllSessions() {
+            if (!confirm(`Are you absolutely sure you want to delete ALL ${totalSessions} sessions? This cannot be undone!`)) {
+                log('Deletion cancelled by user');
+                return;
+            }
+
+            deleteBtn.disabled = true;
+            statusLog.innerHTML = '';
+            log('Starting deletion process...');
+
+            try {
+                if (!window.db) {
+                    throw new Error('Supabase client not initialized');
+                }
+
+                // Fetch all sessions again to ensure we have the latest
+                log('Fetching all sessions...');
+                const { data: sessions, error: fetchError } = await window.db
+                    .from('sessions')
+                    .select('id, name, status')
+                    .order('created_at', { ascending: false });
+
+                if (fetchError) {
+                    throw fetchError;
+                }
+
+                if (!sessions || sessions.length === 0) {
+                    log('No sessions found to delete', 'success');
+                    return;
+                }
+
+                log(`Found ${sessions.length} session(s) to delete`);
+
+                // Delete all sessions at once using Supabase
+                log('Deleting all sessions from Supabase...');
+
+                const sessionIds = sessions.map(s => s.id);
+
+                // Delete from sessions table (this should cascade to related tables)
+                const { error: deleteError } = await window.db
+                    .from('sessions')
+                    .delete()
+                    .in('id', sessionIds);
+
+                if (deleteError) {
+                    throw deleteError;
+                }
+
+                log(`✓ Successfully deleted ${sessions.length} sessions from database`, 'success');
+
+                // Clear session references from sessionStorage
+                log('Clearing session references from sessionStorage...');
+                sessionStorage.removeItem('esg_session_id');
+                sessionStorage.removeItem('esg_selected_session_id');
+                log('  ✓ SessionStorage cleared');
+
+                // Clear localStorage session keys
+                log('Clearing session data from localStorage...');
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.startsWith('session_') ||
+                        key.includes('_session_') ||
+                        key.startsWith('blueActions_') ||
+                        key.startsWith('blueRequests_') ||
+                        key.startsWith('communications_') ||
+                        key.startsWith('whiteCell_'))) {
+                        keysToRemove.push(key);
+                    }
+                }
+
+                keysToRemove.forEach(key => {
+                    localStorage.removeItem(key);
+                });
+                log(`  ✓ Removed ${keysToRemove.length} LocalStorage keys`);
+
+                // Summary
+                log('═══════════════════════════════════════');
+                log(`DELETION COMPLETE`, 'success');
+                log(`Successfully deleted: ${sessions.length} session(s)`, 'success');
+                log(`LocalStorage keys removed: ${keysToRemove.length}`);
+                log('═══════════════════════════════════════');
+
+                if (window.esg && window.esg.showToast) {
+                    window.esg.showToast(`All ${sessions.length} sessions deleted successfully`);
+                }
+
+                sessionCountEl.textContent = `Deleted ${sessions.length} sessions`;
+
+                // Redirect to game master after a delay
+                log('Redirecting to Game Master in 3 seconds...');
+                setTimeout(() => {
+                    window.location.href = 'gamemaster.html';
+                }, 3000);
+
+            } catch (error) {
+                log(`FATAL ERROR: ${error.message}`, 'error');
+                console.error('Delete all sessions error:', error);
+                alert('Error deleting sessions: ' + error.message);
+                deleteBtn.disabled = false;
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            log('Page loaded, initializing...');
+
+            // Wait a bit for Supabase to initialize
+            setTimeout(async () => {
+                if (window.db) {
+                    log('Supabase client initialized successfully');
+                    await checkSessions();
+                } else {
+                    log('ERROR: Supabase client not available', 'error');
+                    log('Make sure util.js is loaded and Supabase is configured', 'error');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>

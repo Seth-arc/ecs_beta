@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Simulation | WHITE Cell Control</title>
+    <link rel="stylesheet" href="../../styles/blue_whitecell.css">
+    <link rel="stylesheet" href="../../styles/simulation-theme.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    </style>
+</head>
+
+<body>
+    <div id="loader" aria-label="Loading simulation environment">
+        <div class="loader-globe">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.2" />
+                <ellipse cx="24" cy="24" rx="22" ry="10" stroke="currentColor" stroke-width="1.5" fill="none"
+                    opacity="0.3" />
+                <ellipse cx="24" cy="24" rx="10" ry="22" stroke="currentColor" stroke-width="1.5" fill="none"
+                    opacity="0.3" />
+                <path d="M2 24h44" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                <path d="M24 2v44" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="1.5" fill="none" />
+            </svg>
+            <div class="loader-ring"></div>
+        </div>
+    </div>
+    <!-- Loader hide and navigation initialization -->
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-brand">
+            <a href="../../index.html" class="brand-mark" title="Home"><img src="../../img/homebutton_99695.svg"
+                    alt="Home" style="width: 100%; height: 100%;"></a>
+            <div class="header-title">
+                <h1>BLUE White Cell</h1>
+                <p id="moveEpoch">Move 1: Epoch 1 (2027-2030)</p>
+                <p id="sessionStatus" style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Not connected to
+                    session</p>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <div class="control-group">
+                <span class="control-label">Move:</span>
+                <select id="moveSelector" onchange="changeMoveContext()" class="move-selector">
+                    <option value="1">Move 1</option>
+                    <option value="2">Move 2</option>
+                    <option value="3">Move 3</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <span class="control-label">Phase:</span>
+                <div id="phaseIndicator" style="display: flex; gap: 4px;">
+                    <button class="phase-btn active" data-phase="1">1</button>
+                    <button class="phase-btn" data-phase="2">2</button>
+                    <button class="phase-btn" data-phase="3">3</button>
+                    <button class="phase-btn" data-phase="4">4</button>
+                    <button class="phase-btn" data-phase="5">5</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="section-nav">
+                <div class="nav-section-label">Sections</div>
+
+                <div class="nav-item active" data-section="timeline">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Timeline</div>
+                        <div class="nav-subtitle">All team updates</div>
+                    </div>
+                    <span class="nav-badge" id="timelineBadge">0</span>
+                </div>
+
+                <div class="nav-item" data-section="capture">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Quick Capture</div>
+                        <div class="nav-subtitle">Add observations</div>
+                    </div>
+                </div>
+
+                <div class="nav-item" data-section="requests">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="16" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12.01" y2="8" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Requests for Info</div>
+                        <div class="nav-subtitle">From BLUE team</div>
+                    </div>
+                    <span class="nav-badge" id="requestsBadge">0</span>
+                </div>
+
+                <div class="nav-item" data-section="actions">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="9 11 12 14 22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Actions Decided</div>
+                        <div class="nav-subtitle">Team submissions</div>
+                    </div>
+                    <span class="nav-badge" id="actionsBadge">0</span>
+                </div>
+
+                <div class="nav-item" data-section="adjudication">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Adjudication</div>
+                        <div class="nav-subtitle">Rulings & outcomes</div>
+                    </div>
+                    <span class="nav-badge" id="adjudicationBadge">0</span>
+                </div>
+
+                <div class="nav-item" data-section="communication">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M22 2L11 13" />
+                            <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Communication</div>
+                        <div class="nav-subtitle">Send responses</div>
+                    </div>
+                    <span class="nav-badge" id="communicationBadge">0</span>
+                </div>
+            </div>
+
+            <div class="sidebar-actions"></div>
+
+            <div class="sidebar-timer">
+                <div class="timer-label">Time Remaining</div>
+                <div class="timer" id="timer">90:00</div>
+                <div class="timer-controls">
+                    <button class="timer-btn" id="startTimer">Start</button>
+                    <button class="timer-btn" id="pauseTimer">Pause</button>
+                    <button class="timer-btn" id="resetTimer">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Timeline Section -->
+            <div class="section-content active" id="timeline">
+                <div class="section-header">
+                    <div>
+                        <h2>Timeline</h2>
+                        <p>Real-time team observations</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="updateTimeline()"
+                        style="font-size: 0.75rem; padding: 6px 12px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M23 4v6h-6" />
+                            <path d="M1 20v-6h6" />
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="alert">
+                    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span><strong>Team Updates:</strong> Real-time timeline entries from all teams appear in their
+                        respective columns below automatically.</span>
+                </div>
+
+                <div class="team-columns">
+                    <!-- BLUE Team Column -->
+                    <div class="team-column">
+                        <div class="team-column-header blue">
+                            <div class="team-column-label">BLUE Team</div>
+                            <div class="team-column-title">Timeline</div>
+                            <div class="team-column-count" id="blueTimelineCount">0 items</div>
+                        </div>
+                        <div class="team-timeline" id="blueTimeline">
+                            <div class="empty-state">
+                                <p>No BLUE team items yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GREEN Team Column -->
+                    <div class="team-column">
+                        <div class="team-column-header green">
+                            <div class="team-column-label">GREEN Allies</div>
+                            <div class="team-column-title">Timeline</div>
+                            <div class="team-column-count" id="greenTimelineCount">0 items</div>
+                        </div>
+                        <div class="team-timeline" id="greenTimeline">
+                            <div class="empty-state">
+                                <p>No GREEN team items yet</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RED Team Column -->
+                    <div class="team-column">
+                        <div class="team-column-header red">
+                            <div class="team-column-label">RED Adversaries</div>
+                            <div class="team-column-title">Timeline</div>
+                            <div class="team-column-count" id="redTimelineCount">0 items</div>
+                        </div>
+                        <div class="team-timeline" id="redTimeline">
+                            <div class="empty-state">
+                                <p>No RED team items yet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Capture Section -->
+            <div class="section-content" id="capture">
+                <div class="section-header">
+                    <div>
+                        <h2>Quick Capture</h2>
+                        <p>Capture observations across all teams</p>
+                    </div>
+                </div>
+
+                <div id="phaseGuidanceContainer"></div>
+
+                <div class="quick-capture-section">
+                    <div class="quick-capture-title">What are you capturing?</div>
+
+                    <div class="capture-type-tabs">
+                        <div class="capture-tab active" data-type="note">General Note</div>
+                        <div class="capture-tab" data-type="moment">Key Moment</div>
+                        <div class="capture-tab" data-type="quote">Important Quote</div>
+                        <div class="capture-tab" data-type="requestinfo">Ruling/Clarification</div>
+                    </div>
+
+                    <div style="margin-bottom: var(--space-sm);">
+                        <div class="capture-section-label">Which team? (optional)</div>
+                        <div class="quick-buttons" id="factionButtons">
+                            <button class="quick-btn faction-tag" data-faction="blue">BLUE Team</button>
+                            <button class="quick-btn faction-tag" data-faction="green">GREEN Allies</button>
+                            <button class="quick-btn faction-tag" data-faction="red">RED Adversaries</button>
+                            <button class="quick-btn faction-tag" data-faction="cross">Cross-Team</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: var(--space-sm);">
+                        <div class="capture-section-label">Simulation phase markers (optional)</div>
+                        <div class="quick-buttons">
+                            <button class="quick-btn debate-marker" data-marker="started">Phase Started</button>
+                            <button class="quick-btn debate-marker" data-marker="shifted">Team Interaction</button>
+                            <button class="quick-btn debate-marker" data-marker="actions">Adjudication Needed</button>
+                            <button class="quick-btn debate-marker" data-marker="consensus">Ruling Made</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: var(--space-sm);">
+                        <div class="capture-section-label">Quick templates</div>
+                        <div class="quick-buttons">
+                            <button class="quick-btn template-btn" onclick="insertTemplate('disagree')">Team
+                                Conflict</button>
+                            <button class="quick-btn template-btn" onclick="insertTemplate('consensus')">Cross-Team
+                                Coordination</button>
+                            <button class="quick-btn template-btn" onclick="insertTemplate('question')">Clarification
+                                Requested</button>
+                            <button class="quick-btn template-btn" onclick="insertTemplate('concern')">Game Balance
+                                Issue</button>
+                        </div>
+                    </div>
+
+                    <textarea class="quick-textarea" id="quickCaptureText"
+                        placeholder="Type what you're observing across teams..."></textarea>
+
+                    <div class="capture-hint" id="captureHint">
+                        Cross-team dynamics, rule clarifications, fairness observations, game state...
+                    </div>
+
+                    <button class="btn btn-success" onclick="addCapture()" style="margin-top: var(--space-sm);">Add to
+                        Timeline</button>
+                </div>
+
+                <div class="alert">
+                    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span><strong>Tip:</strong> Keep typing in Quick Capture. Document key adjudications and cross-team
+                        interactions during the game.</span>
+                </div>
+            </div>
+
+            <!-- Requests for Info Section -->
+            <div class="section-content" id="requests">
+                <div class="section-header">
+                    <div>
+                        <h2>Requests for Info</h2>
+                        <p>Questions from BLUE team</p>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                        </span>
+                        Questions
+                    </h3>
+                    <div id="requestsContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div class="empty-state">
+                            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            <p>No requests for information yet</p>
+                            <p>Requests will appear here when submitted</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Decided Section -->
+            <div class="section-content" id="actions">
+                <div class="section-header">
+                    <div>
+                        <h2>Actions Decided</h2>
+                        <p>Team submissions</p>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <polyline points="9 11 12 14 22 4" />
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                            </svg>
+                        </span>
+                        Submitted Actions
+                    </h3>
+                    <div id="actionsContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div class="empty-state">
+                            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <polyline points="9 11 12 14 22 4" />
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                            </svg>
+                            <p>No actions submitted yet</p>
+                            <p>Actions will appear here when teams submit</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adjudication Section -->
+            <div class="section-content" id="adjudication">
+                <div class="section-header">
+                    <div>
+                        <h2>Adjudication</h2>
+                        <p>Rulings and outcome determinations</p>
+                    </div>
+                </div>
+
+                <!-- Alignment with White_Cell_Adjudication.md -->
+                <div class="note-card">
+                    <style>
+                        /* Scoped styles for adjudication section - aligned with platform design system */
+                        #adjudication .adj-group {
+                            display: flex;
+                            flex-direction: column;
+                            gap: var(--space-xs);
+                        }
+
+                        /* Checkbox/Radio option lists */
+                        #adjudication .adj-options {
+                            display: flex;
+                            flex-direction: column;
+                            gap: var(--space-xs);
+                        }
+
+                        #adjudication .adj-options label {
+                            display: flex;
+                            align-items: center;
+                            gap: var(--space-xs);
+                            padding: 10px var(--space-sm);
+                            font-size: 0.875rem;
+                            color: var(--color-text);
+                            background: var(--color-surface-alt);
+                            border: 1px solid var(--color-border-light);
+                            border-radius: 6px;
+                            cursor: pointer;
+                            transition: all var(--transition-fast);
+                        }
+
+                        #adjudication .adj-options label:hover {
+                            border-color: var(--color-border);
+                            background: var(--color-surface);
+                        }
+
+                        #adjudication .adj-options input[type="checkbox"],
+                        #adjudication .adj-options input[type="radio"] {
+                            width: 16px;
+                            height: 16px;
+                            margin: 0;
+                            accent-color: var(--color-primary);
+                            flex-shrink: 0;
+                        }
+
+                        /* Grid layouts for structured data */
+                        #adjudication .adj-grid-3 {
+                            display: grid;
+                            grid-template-columns: minmax(140px, 1fr) minmax(180px, 1.5fr) auto;
+                            gap: 0;
+                        }
+
+                        #adjudication .adj-grid-4 {
+                            display: grid;
+                            grid-template-columns: minmax(180px, 1.2fr) repeat(3, minmax(100px, 1fr));
+                            gap: 0;
+                        }
+
+                        /* Grid row styling */
+                        #adjudication .adj-grid-3>*,
+                        #adjudication .adj-grid-4>* {
+                            padding: 12px var(--space-sm);
+                            border-bottom: 1px solid var(--color-border-light);
+                            display: flex;
+                            align-items: center;
+                            min-height: 48px;
+                        }
+
+                        /* Row label styling */
+                        #adjudication .adj-grid-3>div:nth-child(3n+1),
+                        #adjudication .adj-grid-4>div:nth-child(4n+1) {
+                            font-weight: 500;
+                            font-size: 0.8125rem;
+                            color: var(--color-text);
+                            background: var(--color-surface-alt);
+                            border-left: 3px solid var(--color-primary);
+                        }
+
+                        /* Input/Select cells */
+                        #adjudication .adj-grid-3>input,
+                        #adjudication .adj-grid-3>select,
+                        #adjudication .adj-grid-4>select {
+                            background: var(--color-surface);
+                            margin: 0;
+                            border-radius: 0;
+                            border: none;
+                            border-bottom: 1px solid var(--color-border-light);
+                            border-right: 1px solid var(--color-border-light);
+                            padding: 12px 32px 12px 12px;
+                            width: 100%;
+                            font-size: 0.875rem;
+                            font-family: var(--font-sans);
+                            color: var(--color-text);
+                            cursor: pointer;
+                            -webkit-appearance: none;
+                            -moz-appearance: none;
+                            appearance: none;
+                            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888888' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+                            background-repeat: no-repeat;
+                            background-position: right 10px center;
+                            background-size: 12px;
+                        }
+
+                        #adjudication .adj-grid-3>input:focus,
+                        #adjudication .adj-grid-3>select:focus,
+                        #adjudication .adj-grid-4>select:focus {
+                            box-shadow: inset 0 0 0 2px rgba(26, 68, 128, 0.1);
+                        }
+
+                        /* Severity radio group styling */
+                        #adjudication .adj-severity {
+                            display: flex;
+                            gap: var(--space-sm);
+                            align-items: center;
+                            background: var(--color-surface);
+                            border-right: 1px solid var(--color-border-light);
+                        }
+
+                        #adjudication .adj-severity label {
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+                            font-size: 0.75rem;
+                            color: var(--color-text-secondary);
+                            cursor: pointer;
+                            white-space: nowrap;
+                        }
+
+                        #adjudication .adj-severity input[type="radio"] {
+                            width: 14px;
+                            height: 14px;
+                            margin: 0;
+                            accent-color: var(--color-primary);
+                        }
+
+                        /* Grid header row (implied) */
+                        #adjudication .adj-grid-3>*:nth-child(-n+3),
+                        #adjudication .adj-grid-4>*:nth-child(-n+4) {
+                            border-top: 1px solid var(--color-border);
+                        }
+
+                        /* Last row no bottom border */
+                        #adjudication .adj-grid-3>*:nth-last-child(-n+3),
+                        #adjudication .adj-grid-4>*:nth-last-child(-n+4) {
+                            border-bottom: 1px solid var(--color-border);
+                        }
+
+                        /* Muted text helper */
+                        #adjudication .adj-muted {
+                            font-size: 0.875rem;
+                            color: var(--color-text);
+                        }
+
+                        /* Responsive adjustments */
+                        @media (max-width: 980px) {
+                            #adjudication .adj-grid-3 {
+                                grid-template-columns: 1fr;
+                            }
+
+                            #adjudication .adj-grid-4 {
+                                grid-template-columns: 1fr;
+                            }
+
+                            #adjudication .adj-grid-3>*,
+                            #adjudication .adj-grid-4>* {
+                                border-left: 3px solid transparent;
+                            }
+
+                            #adjudication .adj-grid-3>div:first-child,
+                            #adjudication .adj-grid-3>div:nth-child(3n+1),
+                            #adjudication .adj-grid-4>div:first-child,
+                            #adjudication .adj-grid-4>div:nth-child(4n+1) {
+                                margin-top: var(--space-sm);
+                                border-radius: 6px 6px 0 0;
+                            }
+
+                            #adjudication .adj-severity {
+                                justify-content: flex-start;
+                                padding-left: var(--space-sm);
+                            }
+                        }
+                    </style>
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 5v14M5 12h14" />
+                            </svg>
+                        </span>
+                        Action Being Adjudicated
+                    </h3>
+                    <div class="form-field adj-group">
+                        <label class="form-label">Select Action (Required)</label>
+                        <select class="form-select" id="adj-action-selector">
+                            <option value="">-- Select an action to adjudicate --</option>
+                        </select>
+                        <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 4px;">
+                            Actions will appear here once submitted by the BLUE team
+                        </div>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 5v14M5 12h14" />
+                            </svg>
+                        </span>
+                        Vulnerabilities Exploited
+                    </h3>
+
+                    <!-- Section 1: Vulnerability & Interdependency Analysis -->
+                    <div class="form-field adj-group">
+                        <div class="adj-options adj-muted">
+                            <label><input type="checkbox" class="adj-vulnerability"
+                                    value="Critical Minerals dependency"> Critical Minerals dependency</label>
+                            <label><input type="checkbox" class="adj-vulnerability" value="Supply Chain chokepoints">
+                                Supply Chain chokepoints</label>
+                            <label><input type="checkbox" class="adj-vulnerability" value="Technology access gaps">
+                                Technology access gaps</label>
+                            <label><input type="checkbox" class="adj-vulnerability"
+                                    value="Manufacturing capacity limits"> Manufacturing capacity limits</label>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Interdependencies Affected -->
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M6 9l6-6 6 6M6 15l6 6 6-6" />
+                            </svg>
+                        </span>
+                        Interdependencies Affected
+                    </h3>
+                    <div class="form-field adj-group">
+                        <div class="adj-grid-3"
+                            style="border: 1px solid var(--color-border); border-radius: 6px; overflow: hidden;">
+                            <div>Ally-to-Ally</div>
+                            <select class="form-select adj-impact-nature" data-rel="Ally-to-Ally">
+                                <option value="">Nature of impact</option>
+                                <option value="Strengthened">Strengthened</option>
+                                <option value="Weakened">Weakened</option>
+                                <option value="Disrupted">Disrupted</option>
+                                <option value="Severed">Severed</option>
+                                <option value="Reconfigured">Reconfigured</option>
+                                <option value="No change">No change</option>
+                            </select>
+                            <div class="adj-severity" data-rel="Ally-to-Ally">
+                                <label><input type="radio" name="sev-ally-ally" value="Low"> Low</label>
+                                <label><input type="radio" name="sev-ally-ally" value="Medium"> Medium</label>
+                                <label><input type="radio" name="sev-ally-ally" value="High"> High</label>
+                            </div>
+
+                            <div>Ally-to-Adversary</div>
+                            <select class="form-select adj-impact-nature" data-rel="Ally-to-Adversary">
+                                <option value="">Nature of impact</option>
+                                <option value="Strengthened">Strengthened</option>
+                                <option value="Weakened">Weakened</option>
+                                <option value="Disrupted">Disrupted</option>
+                                <option value="Severed">Severed</option>
+                                <option value="Reconfigured">Reconfigured</option>
+                                <option value="No change">No change</option>
+                            </select>
+                            <div class="adj-severity" data-rel="Ally-to-Adversary">
+                                <label><input type="radio" name="sev-ally-adv" value="Low"> Low</label>
+                                <label><input type="radio" name="sev-ally-adv" value="Medium"> Medium</label>
+                                <label><input type="radio" name="sev-ally-adv" value="High"> High</label>
+                            </div>
+
+                            <div>Adversary Internal</div>
+                            <select class="form-select adj-impact-nature" data-rel="Adversary Internal">
+                                <option value="">Nature of impact</option>
+                                <option value="Strengthened">Strengthened</option>
+                                <option value="Weakened">Weakened</option>
+                                <option value="Disrupted">Disrupted</option>
+                                <option value="Severed">Severed</option>
+                                <option value="Reconfigured">Reconfigured</option>
+                                <option value="No change">No change</option>
+                            </select>
+                            <div class="adj-severity" data-rel="Adversary Internal">
+                                <label><input type="radio" name="sev-adv-int" value="Low"> Low</label>
+                                <label><input type="radio" name="sev-adv-int" value="Medium"> Medium</label>
+                                <label><input type="radio" name="sev-adv-int" value="High"> High</label>
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Structural Impact Assessment -->
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M4 4h16v4H4zM4 12h16v8H4z" />
+                            </svg>
+                        </span>
+                        Structural Impact Assessment
+                    </h3>
+                    <div class="form-field adj-group">
+                        <div class="adj-grid-4"
+                            style="border: 1px solid var(--color-border); border-radius: 6px; overflow: hidden;">
+                            <div>Technological Edge</div>
+                            <select class="form-select adj-blue-pos" data-track="Technological Edge">
+                                <option value="">Effect on Blue</option>
+                                <option value="Advance">Advance</option>
+                                <option value="Hold">Hold</option>
+                                <option value="Yield">Yield</option>
+                            </select>
+                            <select class="form-select adj-red-traj" data-track="Technological Edge">
+                                <option value="">Effect on Red</option>
+                                <option value="Deny">Deny</option>
+                                <option value="Degrade">Degrade</option>
+                                <option value="Disrupt">Disrupt</option>
+                            </select>
+                            <select class="form-select adj-net-adv" data-track="Technological Edge">
+                                <option value="">Advantage</option>
+                                <option value="Blue">Blue</option>
+                                <option value="Red">Red</option>
+                                <option value="Neutral">Neutral</option>
+                            </select>
+
+                            <div>Industrial & Production Base</div>
+                            <select class="form-select adj-blue-pos" data-track="Industrial & Production Base">
+                                <option value="">Effect on Blue</option>
+                                <option value="Advance">Advance</option>
+                                <option value="Hold">Hold</option>
+                                <option value="Yield">Yield</option>
+                            </select>
+                            <select class="form-select adj-red-traj" data-track="Industrial & Production Base">
+                                <option value="">Effect on Red</option>
+                                <option value="Deny">Deny</option>
+                                <option value="Degrade">Degrade</option>
+                                <option value="Disrupt">Disrupt</option>
+                            </select>
+                            <select class="form-select adj-net-adv" data-track="Industrial & Production Base">
+                                <option value="">Advantage</option>
+                                <option value="Blue">Blue</option>
+                                <option value="Red">Red</option>
+                                <option value="Neutral">Neutral</option>
+                            </select>
+
+                            <div>Supply-Chain Resilience</div>
+                            <select class="form-select adj-blue-pos" data-track="Supply-Chain Resilience">
+                                <option value="">Effect on Blue</option>
+                                <option value="Advance">Advance</option>
+                                <option value="Hold">Hold</option>
+                                <option value="Yield">Yield</option>
+                            </select>
+                            <select class="form-select adj-red-traj" data-track="Supply-Chain Resilience">
+                                <option value="">Effect on Red</option>
+                                <option value="Deny">Deny</option>
+                                <option value="Degrade">Degrade</option>
+                                <option value="Disrupt">Disrupt</option>
+                            </select>
+                            <select class="form-select adj-net-adv" data-track="Supply-Chain Resilience">
+                                <option value="">Advantage</option>
+                                <option value="Blue">Blue</option>
+                                <option value="Red">Red</option>
+                                <option value="Neutral">Neutral</option>
+                            </select>
+
+                            <div>Alliance System & Coordination</div>
+                            <select class="form-select adj-blue-pos" data-track="Alliance System & Coordination">
+                                <option value="">Effect on Blue</option>
+                                <option value="Advance">Advance</option>
+                                <option value="Hold">Hold</option>
+                                <option value="Yield">Yield</option>
+                            </select>
+                            <select class="form-select adj-red-traj" data-track="Alliance System & Coordination">
+                                <option value="">Effect on Red</option>
+                                <option value="Deny">Deny</option>
+                                <option value="Degrade">Degrade</option>
+                                <option value="Disrupt">Disrupt</option>
+                            </select>
+                            <select class="form-select adj-net-adv" data-track="Alliance System & Coordination">
+                                <option value="">Advantage</option>
+                                <option value="Blue">Blue</option>
+                                <option value="Red">Red</option>
+                                <option value="Neutral">Neutral</option>
+                            </select>
+
+                            <div>Operational Window</div>
+                            <select class="form-select adj-blue-pos" data-track="Operational Window">
+                                <option value="">Effect on Blue</option>
+                                <option value="Advance">Advance</option>
+                                <option value="Hold">Hold</option>
+                                <option value="Yield">Yield</option>
+                            </select>
+                            <select class="form-select adj-red-traj" data-track="Operational Window">
+                                <option value="">Effect on Red</option>
+                                <option value="Deny">Deny</option>
+                                <option value="Degrade">Degrade</option>
+                                <option value="Disrupt">Disrupt</option>
+                            </select>
+                            <select class="form-select adj-net-adv" data-track="Operational Window">
+                                <option value="">Advantage</option>
+                                <option value="Blue">Blue</option>
+                                <option value="Red">Red</option>
+                                <option value="Neutral">Neutral</option>
+                            </select>
+
+                            <div>Economic & Political Shock Exposure</div>
+                            <select class="form-select adj-blue-pos" data-track="Economic & Political Shock Exposure">
+                                <option value="">Effect on Blue</option>
+                                <option value="Advance">Advance</option>
+                                <option value="Hold">Hold</option>
+                                <option value="Yield">Yield</option>
+                            </select>
+                            <select class="form-select adj-red-traj" data-track="Economic & Political Shock Exposure">
+                                <option value="">Effect on Red</option>
+                                <option value="Deny">Deny</option>
+                                <option value="Degrade">Degrade</option>
+                                <option value="Disrupt">Disrupt</option>
+                            </select>
+                            <select class="form-select adj-net-adv" data-track="Economic & Political Shock Exposure">
+                                <option value="">Advantage</option>
+                                <option value="Blue">Blue</option>
+                                <option value="Red">Red</option>
+                                <option value="Neutral">Neutral</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Outcome Determination -->
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2l3 7h7l-5.5 4 2.5 7L12 17l-7 4 2.5-7L2 9h7z" />
+                            </svg>
+                        </span>
+                        Outcome Determination
+                    </h3>
+                    <div class="form-field adj-group">
+                        <div class="adj-options adj-muted">
+                            <label><input type="radio" name="adj-outcome" value="Action succeeds as intended"> Action
+                                succeeds as intended</label>
+                            <label><input type="radio" name="adj-outcome" value="Action partially succeeds"> Action
+                                partially succeeds</label>
+                            <label><input type="radio" name="adj-outcome" value="Action fails"> Action fails</label>
+                            <label><input type="radio" name="adj-outcome" value="Action produces unexpected results">
+                                Action produces unexpected results</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Outcome Narrative -->
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M4 6h16M4 12h10M4 18h16" />
+                            </svg>
+                        </span>
+                        Outcome Narrative
+                    </h3>
+                    <div class="form-field adj-group">
+                        <textarea class="form-textarea" id="adj-narrative" placeholder="Structured narrative explaining how the action alters the structural trajectory of Red's modernization and
+Blue's structural position relative to that trajectory."></textarea>
+                    </div>
+                    <div class="form-actions" style="margin-top: var(--space-md);">
+                        <button class="btn btn-success" onclick="submitAdjudication()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg>
+                            Save Adjudication
+                        </button>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                        </span>
+                        Adjudication Log
+                    </h3>
+                    <div id="rulingLogContainer"
+                        style="display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto;">
+                        <div class="empty-state">
+                            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                            <p>No rulings recorded yet</p>
+                            <p>Rulings will appear here as they are made</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Communication Section -->
+            <div class="section-content" id="communication">
+                <div class="section-header">
+                    <div>
+                        <h2>Communication</h2>
+                        <p>Send responses to teams and game updates</p>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M22 2L11 13" />
+                                <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                            </svg>
+                        </span>
+                        Send Response to BLUE Team
+                    </h3>
+                    <div class="form-field">
+                        <label class="form-label">Response Type</label>
+                        <select class="form-select" id="responseType">
+                            <option value="rfi_response">Information Request Response</option>
+                            <option value="game_update">Game Update</option>
+                            <option value="clarification">Clarification Needed</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-input" id="responseTitle"
+                            placeholder="Brief title for the response">
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Content</label>
+                        <textarea class="form-textarea" id="responseContent"
+                            placeholder="Response content or game update details"></textarea>
+                    </div>
+                    <button class="btn btn-success" onclick="sendResponseToBlue()">Send to BLUE Team</button>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                        </span>
+                        Communication Log
+                    </h3>
+                    <div id="communicationLogContainer"
+                        style="display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto;">
+                        <div class="empty-state">
+                            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            <p>No communications sent yet</p>
+                            <p>Messages will appear here when sent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/modal-utils.js"></script>
+    <script src="../../js/data-layer.js"></script>
+    <script src="../../js/research-tracking.js"></script>
+    <script src="../../js/loading.js"></script>
+    <script src="../../js/role-dialogs.js"></script>
+    <script type="module" src="../../js/whitecell.js"></script>
+    <script>
+        // Global functions for onclick handlers
+        function insertTemplate(type) {
+            const templates = {
+                'disagree': `TEAM CONFLICT
+• Team A: ___
+• Team B: ___
+• Conflict Type: ___
+• Adjudication Needed: ___`,
+
+                'consensus': `CROSS-TEAM COORDINATION
+• Teams Involved: ___
+• Coordination Type: ___
+• Effectiveness: ___
+• Impact: ___`,
+
+                'question': `CLARIFICATION REQUESTED
+• Team: ___
+• Question: "___"
+• Ruling Provided: ___
+• Impact: ___`,
+
+                'concern': `GAME BALANCE ISSUE
+• Issue: ___
+• Team(s) Affected: ___
+• Assessment: ___
+• Action Taken: ___`
+            };
+            const textarea = document.getElementById('quickCaptureText');
+            if (textarea) {
+                textarea.value = templates[type] || '';
+                textarea.focus();
+                setTimeout(() => {
+                    const firstBlank = textarea.value.indexOf('___');
+                    if (firstBlank !== -1) {
+                        textarea.setSelectionRange(firstBlank, firstBlank + 3);
+                    }
+                }, 10);
+            }
+        }
+
+        function addCapture() {
+            // This will be overridden by the module version once it loads
+            // But provides a fallback if called before module loads
+            console.log('addCapture called - waiting for module to load');
+        }
+
+        // Role-specific authentication for White Cell
+        document.addEventListener('DOMContentLoaded', () => {
+            const requiredRole = 'blue_whitecell';
+            const role = sessionStorage.getItem('esg_role');
+            const sessionId = sessionStorage.getItem('esg_session_id');
+
+            // Check both role and session
+            if (!role || role !== requiredRole || !sessionId) {
+                showRoleLoginPrompt(requiredRole, 'White Cell');
+            } else {
+                // Update session status display
+                updateSessionStatus();
+            }
+        });
+        // Function to update session status in header
+        function updateSessionStatus() {
+            const sessionId = sessionStorage.getItem('esg_session_id');
+            const statusEl = document.getElementById('sessionStatus');
+
+            if (statusEl && sessionId) {
+                // Get session name from database
+                if (typeof window.esg !== 'undefined' && window.esg.getSessionName) {
+                    window.esg.getSessionName().then(sessionName => {
+                        if (sessionName) {
+                            statusEl.textContent = sessionName;
+                            statusEl.style.color = '#10b981'; // Green color for connected
+                        } else {
+                            statusEl.textContent = 'Connected to session';
+                            statusEl.style.color = '#10b981';
+                        }
+                    }).catch(() => {
+                        statusEl.textContent = 'Connected to session';
+                        statusEl.style.color = '#10b981';
+                    });
+                } else {
+                    statusEl.textContent = 'Connected to session';
+                    statusEl.style.color = '#10b981';
+                }
+            } else if (statusEl) {
+                statusEl.textContent = 'Not connected to session';
+                statusEl.style.color = '#64748b';
+            }
+        }
+        function showRoleLoginPrompt(role, roleName) {
+            // Hide the page content
+            const mainContent = document.body;
+            if (mainContent) {
+                mainContent.style.overflow = 'hidden';
+            }
+
+            // Hide all page content except the modal
+            const allChildren = Array.from(document.body.children);
+            allChildren.forEach(child => {
+                if (child.id !== 'roleLoginOverlay') {
+                    child.style.display = 'none';
+                }
+            });
+
+            const overlay = document.createElement('div');
+            overlay.id = 'roleLoginOverlay';
+            overlay.className = 'modal-overlay';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #fff; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 20px; animation: fadeIn 0.2s ease;';
+
+            overlay.innerHTML = `
+                <div class="modal-content" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 2px 8px rgba(26, 68, 128, 0.04), 0 8px 32px rgba(26, 68, 128, 0.06); max-width: 450px; width: 90%; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; position: relative;" onclick="event.stopPropagation()">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #1a4480; border-radius: 12px 12px 0 0;"></div>
+                    <div style="padding: 24px 24px 16px; border-bottom: 1px solid #EDF2F7;">
+                        <h2 style="font-size: 1.15rem; font-weight: 400; color: #1C2331; margin: 0; letter-spacing: -0.01em;">${roleName} Login Required</h2>
+                    </div>
+                    <div style="padding: 20px 24px;">
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a; font-size: 0.875rem;">Session ID or Name:</label>
+                            <input type="text" id="roleLoginSession" placeholder="Enter session ID or name" 
+                                   style="width: 100%; padding: 12px 14px; border: 1px solid #EDF2F7; border-radius: 8px; box-sizing: border-box; font-size: 0.9375rem; font-family: 'Inter', sans-serif; background: #FAFAFA; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);"
+                                   autocomplete="off"
+                                   onfocus="this.style.borderColor='#1a4480'; this.style.boxShadow='0 0 0 3px rgba(26, 68, 128, 0.1)'; this.style.background='#FFFFFF'"
+                                   onblur="this.style.borderColor='#EDF2F7'; this.style.boxShadow='none'; this.style.background='#FAFAFA'">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a; font-size: 0.875rem;">Password:</label>
+                            <input type="password" id="roleLoginPassword" 
+                                   style="width: 100%; padding: 12px 14px; border: 1px solid #EDF2F7; border-radius: 8px; box-sizing: border-box; font-size: 0.9375rem; font-family: 'Inter', sans-serif; background: #FAFAFA; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);"
+                                   onkeypress="if(event.key === 'Enter') attemptRoleLogin('${role}')"
+                                   onfocus="this.style.borderColor='#1a4480'; this.style.boxShadow='0 0 0 3px rgba(26, 68, 128, 0.1)'; this.style.background='#FFFFFF'"
+                                   onblur="this.style.borderColor='#EDF2F7'; this.style.boxShadow='none'; this.style.background='#FAFAFA'">
+                        </div>
+                    </div>
+                    <div style="padding: 16px 24px 24px; border-top: 1px solid #EDF2F7; display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="closeRoleLoginPrompt()" 
+                                class="modal-btn-secondary"
+                                style="padding: 12px 14px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #EDF2F7; background: #FAFAFA; color: #1C2331; display: inline-flex; align-items: center; gap: 8px;">
+                            Cancel
+                        </button>
+                        <button onclick="attemptRoleLogin('${role}')" 
+                                class="modal-btn-primary"
+                                style="padding: 12px 14px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #1a4480; background: #1a4480; color: white; display: inline-flex; align-items: center; gap: 8px;">
+                            Login
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            setTimeout(() => {
+                const sessionInput = document.getElementById('roleLoginSession');
+                if (sessionInput) sessionInput.focus();
+            }, 100);
+        }
+
+        function closeRoleLoginPrompt() {
+            const overlay = document.getElementById('roleLoginOverlay');
+            if (overlay) overlay.remove();
+
+            // Restore page content visibility
+            const mainContent = document.body;
+            if (mainContent) {
+                mainContent.style.overflow = '';
+            }
+
+            const allChildren = Array.from(document.body.children);
+            allChildren.forEach(child => {
+                child.style.display = '';
+            });
+
+            window.location.href = '../../index.html';
+        }
+
+        async function attemptRoleLogin(role) {
+            if (typeof window.esg === 'undefined') {
+                if (window.showAlertModal) {
+                    await window.showAlertModal('Authentication system not loaded. Please refresh the page.', 'System Error');
+                } else {
+                    alert('Authentication system not loaded. Please refresh the page.');
+                }
+                return;
+            }
+
+            const sessionInput = document.getElementById('roleLoginSession');
+            const passwordInput = document.getElementById('roleLoginPassword');
+            const sessionIdOrName = sessionInput ? sessionInput.value.trim() : '';
+            const password = passwordInput ? passwordInput.value : '';
+
+            if (!sessionIdOrName) {
+                if (window.showAlertModal) {
+                    await window.showAlertModal('Please enter a session ID or name', 'Session Required');
+                } else {
+                    alert('Please enter a session ID or name');
+                }
+                if (sessionInput) sessionInput.focus();
+                return;
+            }
+
+            if (!password) {
+                if (window.showAlertModal) {
+                    await window.showAlertModal('Please enter a password', 'Password Required');
+                } else {
+                    alert('Please enter a password');
+                }
+                if (passwordInput) passwordInput.focus();
+                return;
+            }
+
+            // First validate the role password
+            const passwordValid = window.esg.login(role, password);
+            if (!passwordValid) {
+                if (window.showAlertModal) {
+                    await window.showAlertModal('Invalid password. Please try again.', 'Authentication Failed');
+                } else {
+                    alert('Invalid password. Please try again.');
+                }
+                if (passwordInput) {
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+                return;
+            }
+
+            // Then find and join the session
+            try {
+                let sessionId = sessionIdOrName;
+
+                // Check if it's a session ID (UUID format) or a name
+                const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionIdOrName);
+
+                if (!isUUID) {
+                    // It's a name, search for the session
+                    const sessions = await window.esg.fetchAllSessions(true); // Include all sessions
+                    const matchingSession = sessions.find(s =>
+                        s.name && s.name.toLowerCase() === sessionIdOrName.toLowerCase()
+                    );
+
+                    if (!matchingSession) {
+                        if (window.showAlertModal) {
+                            await window.showAlertModal('Session not found. Please check the session name or ID.', 'Session Not Found');
+                        } else {
+                            alert('Session not found. Please check the session name or ID.');
+                        }
+                        if (sessionInput) {
+                            sessionInput.value = '';
+                            sessionInput.focus();
+                        }
+                        return;
+                    }
+
+                    sessionId = matchingSession.id;
+                }
+
+                // ========== NEW: Check role availability ==========
+                const availability = await window.esg.checkRoleAvailability(sessionId, role);
+
+                if (!availability.available) {
+                    if (availability.reason === 'role_full') {
+                        const roleName = window.esg.ROLE_DISPLAY_NAMES?.[role] || role;
+                        const action = await window.showRoleTakeoverDialog(roleName, availability);
+
+                        if (action === 'takeover') {
+                            // Disconnect existing participants
+                            await window.esg.disconnectExistingParticipants(sessionId, role);
+                        } else {
+                            return; // User cancelled
+                        }
+                    }
+                }
+                // ===================================================
+
+                // Join the session
+                const joinSuccess = await window.esg.joinSession(sessionId);
+                if (!joinSuccess) {
+                    if (window.showAlertModal) {
+                        await window.showAlertModal('Session not found or is no longer active. Please check the session ID or name.', 'Session Not Found');
+                    } else {
+                        alert('Session not found or is no longer active. Please check the session ID or name.');
+                    }
+                    if (sessionInput) {
+                        sessionInput.value = '';
+                        sessionInput.focus();
+                    }
+                    return;
+                }
+
+                // ========== NEW: Register as session participant ==========
+                const clientId = sessionStorage.getItem('esg_client_id');
+                const registration = await window.esg.registerSessionParticipant(sessionId, clientId, role);
+
+                if (!registration) {
+                    console.warn('Failed to register session participant, but allowing login');
+                }
+
+                // ========== NEW: Start heartbeat ==========
+                if (window.researchTracking?.startParticipantHeartbeat) {
+                    window.researchTracking.startParticipantHeartbeat();
+                }
+                // ===========================================
+
+                // Success! Remove overlay and restore page
+                const overlay = document.getElementById('roleLoginOverlay');
+                if (overlay) overlay.remove();
+
+                // Restore page content visibility
+                const mainContent = document.body;
+                if (mainContent) {
+                    mainContent.style.overflow = '';
+                }
+
+                const allChildren = Array.from(document.body.children);
+                allChildren.forEach(child => {
+                    child.style.display = '';
+                });
+
+                if (window.esg.showToast) {
+                    window.esg.showToast('Logged in and joined session successfully');
+                }
+                // Reload to apply authentication and session
+                window.location.reload();
+            } catch (error) {
+                console.error('Login error:', error);
+                if (window.showAlertModal) {
+                    await window.showAlertModal('Error joining session: ' + (error.message || 'Please try again.'), 'Error');
+                } else {
+                    alert('Error joining session: ' + (error.message || 'Please try again.'));
+                }
+            }
+        }
+
+        // Function to initialize navigation
+        function initializeNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                // Remove any existing listeners by cloning
+                const newItem = item.cloneNode(true);
+                item.parentNode.replaceChild(newItem, item);
+
+                // Add fresh listener
+                newItem.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    newItem.classList.add('active');
+
+                    const sectionId = newItem.getAttribute('data-section');
+                    document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+                    const targetSection = document.getElementById(sectionId);
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Function to reinitialize button event listeners
+        function reinitializeButtons() {
+            // Faction tags
+            document.querySelectorAll('.faction-tag').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const wasSelected = btn.classList.contains('selected');
+                    document.querySelectorAll('.faction-tag').forEach(b => b.classList.remove('selected'));
+                    if (!wasSelected) {
+                        btn.classList.add('selected');
+                    }
+                });
+            });
+
+            // Debate markers
+            document.querySelectorAll('.debate-marker').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const wasSelected = btn.classList.contains('selected');
+                    document.querySelectorAll('.debate-marker').forEach(b => b.classList.remove('selected'));
+                    if (!wasSelected) {
+                        btn.classList.add('selected');
+                    }
+                });
+            });
+
+            // Capture tabs
+            document.querySelectorAll('.capture-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.capture-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const hintEl = document.getElementById('captureHint');
+                    if (hintEl) {
+                        const hints = {
+                            note: 'Cross-team dynamics, rule clarifications, fairness observations, game state...',
+                            moment: 'Critical adjudication moments, major team decisions, turning points...',
+                            quote: 'Important statements from teams - include context and impact',
+                            requestinfo: 'Rulings made, clarifications provided, outcome determinations...'
+                        };
+                        hintEl.textContent = hints[tab.getAttribute('data-type')] || '';
+                    }
+                });
+            });
+        }
+
+        // Hide loader after page is fully loaded
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    loader.style.transition = 'opacity 0.3s ease';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        // Initialize navigation after loader is hidden
+                        initializeNavigation();
+                        // Reinitialize button event listeners
+                        reinitializeButtons();
+                    }, 300);
+                }, 500); // Small delay to ensure everything is initialized
+            } else {
+                // If no loader, initialize immediately
+                initializeNavigation();
+                reinitializeButtons();
+            }
+        });
+    </script>
+    <div id="toast" class="toast"></div>
+    <!-- Removed MVP Add Feedback script -->
+</body>
+
+</html>

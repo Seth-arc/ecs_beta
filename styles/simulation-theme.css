@@ -1,0 +1,200 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+    /* --- Core Palette (Refined) --- */
+    --c-navy: #1a4480;
+    --c-navy-deep: #0f2940;
+    --c-burgundy: #8b1538;
+    
+    /* --- Neutral Palette (The "Minimalist" Secret) --- */
+    --c-bg-app: #F9FAFB;      /* Slightly cooler off-white */
+    --c-surface: #FFFFFF;
+    --c-surface-hover: #F3F4F6;
+    
+    /* --- Typography Colors --- */
+    --c-text-primary: #111827; /* Soft Black */
+    --c-text-secondary: #4B5563; /* Readable Gray */
+    --c-text-muted: #9CA3AF;     /* Subtle details */
+    
+    /* --- Borders & Shadows --- */
+    /* Minimalist design uses shadows instead of borders */
+    --border-subtle: rgba(0, 0, 0, 0.04);
+    --border-focus: rgba(26, 68, 128, 0.2);
+    
+    --shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.03);
+    --shadow-float: 0 10px 30px rgba(0, 0, 0, 0.06);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+
+    /* --- Typography --- */
+    --font-serif: 'Crimson Pro', serif;
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* --- Radius --- */
+    --radius-sm: 6px;
+    --radius-md: 12px; /* Softer corners look more modern */
+    --radius-lg: 16px;
+}
+
+body {
+    background-color: var(--c-bg-app);
+    color: var(--c-text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Make the Header feel like frosted glass */
+.header {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-subtle);
+    box-shadow: none; /* Remove hard shadow */
+}
+
+/* Elegant Headings */
+h1, h2, h3, .header-title h1 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.02em; /* Tighter tracking looks more professional */
+    color: var(--c-navy-deep);
+}
+
+/* Sidebar: Cleaner, less boxy */
+.sidebar {
+    background: var(--c-bg-app); /* Blend sidebar with background */
+    border-right: 1px solid var(--border-subtle);
+}
+
+.nav-item {
+    border-radius: var(--radius-sm);
+    color: var(--c-text-secondary);
+    font-weight: 500;
+    border: none; /* Remove borders from nav items */
+}
+
+.nav-item:hover {
+    background: white;
+    color: var(--c-navy);
+    box-shadow: var(--shadow-soft);
+}
+
+.nav-item.active {
+    background: white;
+    color: var(--c-navy);
+    box-shadow: var(--shadow-soft);
+}
+
+/* Remove the heavy left border on active items, replace with a subtle dot */
+.nav-item.active::before {
+    display: none; 
+}
+.nav-item.active::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--c-navy);
+    border-radius: 50%;
+    margin-left: auto;
+}
+
+/* General container refinement */
+.section-content, .card, .note-card, .team-card {
+    background: var(--c-surface);
+    border: 1px solid var(--border-subtle); /* Very faint border */
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-soft);
+    padding: 32px; /* More whitespace = more elegance */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.section-content:hover, .card:hover, .note-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-float);
+    border-color: rgba(26, 68, 128, 0.1);
+}
+
+/* Inputs: Make them feel tactile */
+input, select, textarea, .form-control {
+    background: var(--c-bg-app);
+    border: 1px solid transparent; /* No border by default */
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    box-shadow: var(--shadow-inner);
+    transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    background: white;
+    border-color: var(--c-navy);
+    box-shadow: 0 0 0 3px rgba(26, 68, 128, 0.1);
+    outline: none;
+}
+
+.btn, .phase-btn, .quick-btn {
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-transform: none; /* Uppercase feels aggressive */
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Primary Action */
+.btn-primary, .phase-btn.active, .quick-add-btn {
+    background: var(--c-navy);
+    color: white;
+    box-shadow: 0 4px 12px rgba(26, 68, 128, 0.25);
+}
+
+.btn-primary:hover, .phase-btn.active:hover {
+    background: var(--c-navy-deep);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(26, 68, 128, 0.3);
+}
+
+/* Secondary / Ghost Buttons */
+.btn-secondary, .phase-btn {
+    background: transparent;
+    color: var(--c-text-secondary);
+}
+
+.btn-secondary:hover, .phase-btn:hover {
+    background: var(--c-surface-hover);
+    color: var(--c-navy);
+}
+
+.timeline-item {
+    background: transparent; /* Remove card-look from timeline items */
+    border-left: 2px solid var(--border-subtle);
+    border-radius: 0;
+    padding-left: 24px;
+    margin-bottom: 24px;
+}
+
+/* Using the dot instead of the line color */
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -5px; /* Aligns with border */
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid var(--c-text-muted);
+}
+
+.timeline-item.moment::before { border-color: var(--c-navy); }
+.timeline-item.quote::before { border-color: var(--c-burgundy); }
+
+.timeline-type {
+    /* Make tags smaller and simpler */
+    background: transparent !important;
+    color: var(--c-text-muted) !important;
+    font-weight: 600;
+    padding: 0;
+    border: none !important;
+    margin-bottom: 4px;
+    display: block;
+}
+

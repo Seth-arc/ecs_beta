@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Simulation | BLUE Team Notes</title>
+    <link rel="stylesheet" href="../../styles/blue_notetaker.css">
+    <link rel="stylesheet" href="../../styles/simulation-theme.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    </style>
+</head>
+
+<body>
+    <div id="loader" aria-label="Loading simulation environment">
+        <div class="loader-globe">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.2" />
+                <ellipse cx="24" cy="24" rx="22" ry="10" stroke="currentColor" stroke-width="1.5" fill="none"
+                    opacity="0.3" />
+                <ellipse cx="24" cy="24" rx="10" ry="22" stroke="currentColor" stroke-width="1.5" fill="none"
+                    opacity="0.3" />
+                <path d="M2 24h44" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                <path d="M24 2v44" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="1.5" fill="none" />
+            </svg>
+            <div class="loader-ring"></div>
+        </div>
+    </div>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-brand">
+            <a href="../../index.html" class="brand-mark" title="Home"><img src="../../img/homebutton_99695.svg"
+                    alt="Home" style="width: 100%; height: 100%;"></a>
+            <div class="header-title">
+                <h1>BLUE Notetaker</h1>
+                <p id="moveEpoch">Move 1: Epoch 1 (2027-2030)</p>
+                <p id="sessionStatus" style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Not connected to
+                    session</p>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <div class="control-group" id="sessionControlGroup" style="display: none;">
+                <span class="control-label">Session:</span>
+                <input type="text" id="sessionIdInput" placeholder="Enter Session ID"
+                    style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; width: 200px; font-size: 0.9rem;">
+                <button onclick="joinSessionFromNotetaker()"
+                    style="padding: 6px 12px; background: #1a4480; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; margin-left: 5px;">
+                    Join
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="section-nav">
+                <div class="nav-section-label">Sections</div>
+
+                <div class="nav-item active" data-section="capture">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Quick Capture</div>
+                        <div class="nav-subtitle">Live observations</div>
+                    </div>
+                </div>
+
+                <div class="nav-item" data-section="dynamics">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Team Dynamics</div>
+                        <div class="nav-subtitle">Decision process</div>
+                    </div>
+                </div>
+
+                <div class="nav-item" data-section="alliance">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Alliance Engagement</div>
+                        <div class="nav-subtitle">External interactions</div>
+                    </div>
+                </div>
+
+                <div class="nav-item" data-section="actions">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="9 11 12 14 22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Actions Decided</div>
+                        <div class="nav-subtitle">What BLUE chose</div>
+                    </div>
+                    <span class="nav-badge" id="actionsBadge">0</span>
+                </div>
+
+                <div class="nav-item" data-section="timeline">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                    </div>
+                    <div class="nav-content">
+                        <div class="nav-title">Timeline</div>
+                        <div class="nav-subtitle">All captured items</div>
+                    </div>
+                    <span class="nav-badge" id="timelineBadge">0</span>
+                </div>
+            </div>
+
+            <div class="sidebar-actions"></div>
+
+            <div class="sidebar-timer">
+                <div class="timer-label">Time Remaining</div>
+                <div class="timer" id="timer">90:00</div>
+                <div class="timer-controls">
+                    <button class="timer-btn" id="startTimer">Start</button>
+                    <button class="timer-btn" id="pauseTimer">Pause</button>
+                    <button class="timer-btn" id="resetTimer">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Quick Capture Section -->
+            <div class="section-content active" id="capture">
+                <div class="section-header">
+                    <h2>Quick Capture</h2>
+                    <p>Document observations from the BLUE Team deliberations in real-time</p>
+                </div>
+
+                <div id="phaseGuidanceContainer"></div>
+
+                <div class="quick-capture-section">
+                    <div class="quick-capture-title">Observation Entry</div>
+
+                    <div style="margin-bottom: 16px;">
+                        <div class="capture-section-label">Classification</div>
+                        <div class="capture-type-tabs">
+                            <div class="capture-tab active" data-type="note">General Note</div>
+                            <div class="capture-tab" data-type="moment">Key Moment</div>
+                            <div class="capture-tab" data-type="quote">Notable Quote</div>
+                            <div class="capture-tab" data-type="requestinfo">Information Request</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <div class="capture-section-label">Speaker (optional)</div>
+                        <div class="quick-buttons" id="factionButtons">
+                            <button class="quick-btn faction-tag" data-faction="leg">Legislative</button>
+                            <button class="quick-btn faction-tag" data-faction="exec">Executive</button>
+                            <button class="quick-btn faction-tag" data-faction="vc">Industry/VC</button>
+                            <button class="quick-btn faction-tag" data-faction="team">General Team</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <div class="capture-section-label">Process Markers (optional)</div>
+                        <div class="quick-buttons">
+                            <button class="quick-btn debate-marker" data-marker="started">Debate Initiated</button>
+                            <button class="quick-btn debate-marker" data-marker="shifted">Topic Shifted</button>
+                            <button class="quick-btn debate-marker" data-marker="actions">Action Discussion</button>
+                            <button class="quick-btn debate-marker" data-marker="consensus">Consensus Reached</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <div class="capture-section-label">Quick Templates</div>
+                        <div class="quick-buttons">
+                            <button class="quick-btn template-btn"
+                                onclick="insertTemplate('disagree')">Disagreement</button>
+                            <button class="quick-btn template-btn"
+                                onclick="insertTemplate('consensus')">Consensus</button>
+                            <button class="quick-btn template-btn" onclick="insertTemplate('question')">Question
+                                Raised</button>
+                            <button class="quick-btn template-btn" onclick="insertTemplate('concern')">Concern
+                                Noted</button>
+                        </div>
+                    </div>
+
+                    <textarea class="quick-textarea" id="quickCaptureText"
+                        placeholder="Enter your observation..."></textarea>
+
+                    <div class="capture-hint" id="captureHint">
+                        Document discussions, decisions, and notable moments as they occur.
+                    </div>
+
+                    <button class="quick-add-btn" onclick="addCapture()">Add to Timeline</button>
+                </div>
+
+                <div class="alert alert-info">
+                    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span><strong>Guidance:</strong> Maintain continuous documentation. Use the navigation panel to
+                        organize detailed observations during breaks.</span>
+                </div>
+            </div>
+
+            <!-- Timeline Section -->
+            <div class="section-content" id="timeline">
+                <div class="section-header">
+                    <h2>Timeline</h2>
+                    <p>Chronological record of all documented observations</p>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                            </svg>
+                        </span>
+                        Filter View
+                    </h3>
+                    <div class="quick-buttons">
+                        <button class="quick-btn selected" data-filter="all">All Items</button>
+                        <button class="quick-btn" data-filter="note">Notes</button>
+                        <button class="quick-btn" data-filter="moment">Key Moments</button>
+                        <button class="quick-btn" data-filter="quote">Quotes</button>
+                        <button class="quick-btn" data-filter="requestinfo">Info Requests</button>
+                        <button class="quick-btn" data-filter="analysis">Analysis</button>
+                    </div>
+                </div>
+
+                <div class="timeline" id="timelineContainer">
+                    <div class="empty-state">
+                        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <p>No observations documented</p>
+                        <p>Begin capturing in the Quick Capture section</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Dynamics Section -->
+            <div class="section-content" id="dynamics">
+                <div class="section-header">
+                    <h2>Team Dynamics</h2>
+                    <p>Analysis of internal decision-making processes observed</p>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                        </span>
+                        Leadership & Decision-Making
+                    </h3>
+                    <div class="form-field">
+                        <label class="form-label">Primary discussion leader</label>
+                        <div class="quick-buttons">
+                            <button class="quick-btn" data-group="leader" data-value="leg">Legislative</button>
+                            <button class="quick-btn" data-group="leader" data-value="exec">Executive</button>
+                            <button class="quick-btn" data-group="leader" data-value="vc">Industry/VC</button>
+                            <button class="quick-btn" data-group="leader"
+                                data-value="balanced">Balanced/Rotated</button>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Leadership observations</label>
+                        <textarea class="form-textarea" id="leadershipNotes"
+                            placeholder="Document who dominated discussions, who remained reserved, who resolved impasses..."></textarea>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-field">
+                            <label class="form-label">Decision methodology</label>
+                            <select class="form-select" id="decisionStyle">
+                                <option>Unanimous consensus</option>
+                                <option>Strong consensus (one dissent)</option>
+                                <option>Narrow majority</option>
+                                <option>Dictated by leadership</option>
+                                <option>Formal vote taken</option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Deliberation vs. execution balance</label>
+                            <div class="scale-group">
+                                <span class="scale-label">Deliberation</span>
+                                <input type="range" class="scale-slider" id="debateVsExecute" min="1" max="10"
+                                    value="5">
+                                <span class="scale-label">Execution</span>
+                                <span class="scale-value" id="debateVsExecuteValue">5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                        </span>
+                        Strategic Approach
+                    </h3>
+                    <!-- Removed Time Allocation per request -->
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                        </span>
+                        Divided Government Dynamics
+                    </h3>
+                    <div class="form-field">
+                        <label class="form-label">Primary points of disagreement</label>
+                        <textarea class="form-textarea" id="disagreements"
+                            placeholder="Document Legislative-Executive tensions and areas of conflict..."></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Debate intensity</label>
+                        <div class="scale-group">
+                            <span class="scale-label">Measured</span>
+                            <input type="range" class="scale-slider" id="debateIntensity" min="1" max="10" value="5">
+                            <span class="scale-label">Intense</span>
+                            <span class="scale-value" id="debateValue">5</span>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Consensus mechanism</label>
+                        <textarea class="form-textarea" id="consensus"
+                            placeholder="Document how agreements were reached: compromise, concession, third-party mediation..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Removed Strategic Approach per request -->
+
+                <!-- Removed Assumptions & Priorities per request -->
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                            </svg>
+                        </span>
+                        Resource Management
+                    </h3>
+                    <div class="form-field">
+                        <label class="form-label">Power conservation discussion</label>
+                        <div class="quick-buttons">
+                            <button class="quick-btn" data-group="powersave" data-value="yes">Conserving
+                                Resources</button>
+                            <button class="quick-btn" data-group="powersave" data-value="no">Deploying Now</button>
+                            <button class="quick-btn" data-group="powersave" data-value="unclear">Not Discussed</button>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Resource strategy notes</label>
+                        <textarea class="form-textarea" id="powerStrategy"
+                            placeholder="Document discussions regarding resource deployment vs. conservation..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Removed Decision Efficiency per request -->
+
+                <div class="form-actions">
+                    <button class="btn btn-success" onclick="submitTeamDynamics()">Submit Team Dynamics
+                        Analysis</button>
+                </div>
+            </div>
+
+            <!-- Actions Section -->
+            <div class="section-content" id="actions">
+                <div class="section-header">
+                    <h2>Actions Decided</h2>
+                    <p>Record of decisions from facilitator and manual documentation</p>
+                </div>
+
+                <div class="alert alert-info">
+                    <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span><strong>Note:</strong> Actions submitted through the Facilitator interface will synchronize
+                        automatically.</span>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <polyline points="9 11 12 14 22 4" />
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                            </svg>
+                        </span>
+                        Facilitator Actions
+                    </h3>
+                    <div id="facilitatorActions">
+                        <div class="empty-state" style="padding: 24px;">
+                            <p>No actions submitted via Facilitator</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                            </svg>
+                        </span>
+                        Manual Action Notes
+                    </h3>
+                    <div class="form-field">
+                        <label class="form-label">Additional action observations</label>
+                        <textarea class="form-textarea" id="manualActions"
+                            placeholder="Document any actions not captured through the facilitator interface..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alliance Section -->
+            <div class="section-content" id="alliance">
+                <div class="section-header">
+                    <h2>Alliance Engagement</h2>
+                    <p>External interactions and responses observed</p>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="2" y1="12" x2="22" y2="12" />
+                                <path
+                                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                            </svg>
+                        </span>
+                        Allied Responses (GREEN)
+                    </h3>
+                    <div class="form-field">
+                        <label class="form-label">Alliance feedback received</label>
+                        <textarea class="form-textarea" id="allyFeedback"
+                            placeholder="Document alliance responses and feedback conveyed to BLUE..."></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Impact on BLUE actions</label>
+                        <div class="quick-buttons">
+                            <button class="quick-btn" data-group="ally-impact" data-value="strengthened">Strengthened
+                                position</button>
+                            <button class="quick-btn" data-group="ally-impact" data-value="modified">Modified
+                                approach</button>
+                            <button class="quick-btn" data-group="ally-impact" data-value="minimal">Minimal
+                                impact</button>
+                            <button class="quick-btn" data-group="ally-impact" data-value="delayed">Delayed
+                                decision</button>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">BLUE team reaction</label>
+                        <textarea class="form-textarea" id="blueReactionAllies"
+                            placeholder="Document team's response..."></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Modifications based on allied input</label>
+                        <textarea class="form-textarea" id="allyBasedChanges"
+                            placeholder="Document actions modified based on alliance feedback..."></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Coalition impact assessment</label>
+                        <div class="scale-group">
+                            <span class="scale-label">Weakened</span>
+                            <input type="range" class="scale-slider" id="coalitionImpact" min="1" max="10" value="5">
+                            <span class="scale-label">Strengthened</span>
+                            <span class="scale-value" id="coalitionImpactValue">5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        </span>
+                        Adversary Activity (RED Reports)
+                    </h3>
+                    <div class="form-field">
+                        <label class="form-label">PRC/Russia activity reported to BLUE</label>
+                        <textarea class="form-textarea" id="redReports"
+                            placeholder="Document adversary actions communicated via WHITE Cell..."></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">BLUE assessment of adversary moves</label>
+                        <textarea class="form-textarea" id="blueRedAssessment"
+                            placeholder="Document BLUE's interpretation..."></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Strategy adaptation</label>
+                        <div class="quick-buttons">
+                            <button class="quick-btn" data-group="red-impact" data-value="yes">Adapted Strategy</button>
+                            <button class="quick-btn" data-group="red-impact" data-value="no">Maintained Course</button>
+                            <button class="quick-btn" data-group="red-impact" data-value="monitor">Active
+                                Monitoring</button>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">Counter-measures discussed</label>
+                        <textarea class="form-textarea" id="redCounterActions"
+                            placeholder="Document proposed responses to adversary actions..."></textarea>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                            </svg>
+                        </span>
+                        Adjudication Outcomes
+                    </h3>
+                    <div class="form-field">
+                        <label class="form-label">WHITE Cell feedback</label>
+                        <textarea class="form-textarea" id="whiteOutcomes"
+                            placeholder="Document outcomes reported by WHITE Cell..."></textarea>
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label">BLUE reaction to outcomes</label>
+                        <textarea class="form-textarea" id="blueReactionOutcomes"
+                            placeholder="Document team's response..."></textarea>
+                    </div>
+                </div>
+
+                <div class="note-card">
+                    <h3>
+                        <span class="card-icon">
+                            <svg viewBox="0 0 24 24">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg>
+                        </span>
+                        Game State Updates
+                    </h3>
+                    <div class="form-field">
+                        <label class="form-label">Overall game state changes reported</label>
+                        <textarea class="form-textarea" id="gameState"
+                            placeholder="Document economic indicators, alliance status, power balance updates..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-success" onclick="submitAllianceEngagement()">Submit Alliance Engagement
+                        Analysis</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../js/modal-utils.js"></script>
+    <script src="../../js/data-layer.js"></script>
+    <script src="../../js/research-tracking.js"></script>
+    <script src="../../js/loading.js"></script>
+    <script src="../../js/role-dialogs.js"></script>
+    <script type="module" src="../../js/notetaker.js"></script>
+    <script>
+        // Global functions for onclick handlers (must be defined before page loads)
+        function insertTemplate(type) {
+            const templates = {
+                disagree: '[DISAGREEMENT] Between ___ and ___ regarding: ',
+                consensus: '[CONSENSUS] Team agreed on: ',
+                question: '[QUESTION RAISED] ___ asked: ',
+                concern: '[CONCERN] ___ expressed concern about: '
+            };
+            const textarea = document.getElementById('quickCaptureText');
+            if (textarea) {
+                textarea.value += templates[type];
+                textarea.focus();
+            }
+        }
+
+        function addCapture() {
+            // This will be overridden by the module version once it loads
+            // But provides a fallback if called before module loads
+            console.log('addCapture called - waiting for module to load');
+        }
+
+        function submitTeamDynamics() {
+            // Data auto-saves, so just show confirmation
+            if (window.esg && window.esg.showToast) {
+                window.esg.showToast('Team Dynamics analysis saved (auto-saved as you type)');
+            } else {
+                alert('Team Dynamics analysis saved');
+            }
+        }
+
+        function submitAllianceEngagement() {
+            // Data auto-saves, so just show confirmation
+            if (window.esg && window.esg.showToast) {
+                window.esg.showToast('Alliance Engagement analysis saved (auto-saved as you type)');
+            } else {
+                alert('Alliance Engagement analysis saved');
+            }
+        }
+
+        // Role-specific authentication for Notetaker
+        document.addEventListener('DOMContentLoaded', () => {
+            const requiredRole = 'blue_notetaker';
+            const role = sessionStorage.getItem('esg_role');
+            const sessionId = sessionStorage.getItem('esg_session_id');
+
+            // Check both role and session
+            if (!role || role !== requiredRole || !sessionId) {
+                showRoleLoginPrompt(requiredRole, 'Notetaker');
+            } else {
+                // Update session status display
+                updateSessionStatus();
+            }
+        });
+        // Function to update session status in header
+        function updateSessionStatus() {
+            const sessionId = sessionStorage.getItem('esg_session_id');
+            const statusEl = document.getElementById('sessionStatus');
+            if (statusEl && sessionId) {
+                // Wait for window.esg.getSessionName to be available
+                const checkAndUpdate = () => {
+                    if (typeof window.esg !== 'undefined' && window.esg.getSessionName) {
+                        window.esg.getSessionName().then(sessionName => {
+                            if (sessionName) {
+                                statusEl.textContent = sessionName;
+                                statusEl.style.color = '#10b981'; // Green color for connected
+                            } else {
+                                statusEl.textContent = 'Connected to session';
+                                statusEl.style.color = '#10b981';
+                            }
+                        }).catch(() => {
+                            statusEl.textContent = 'Connected to session';
+                            statusEl.style.color = '#10b981';
+                        });
+                    } else {
+                        // Retry after a short delay
+                        setTimeout(checkAndUpdate, 100);
+                    }
+                };
+                checkAndUpdate();
+            } else if (statusEl) {
+                statusEl.textContent = 'Not connected to session';
+                statusEl.style.color = '#64748b';
+            }
+        }
+
+        function showRoleLoginPrompt(role, roleName) {
+            // Hide the page content
+            const mainContent = document.body;
+            if (mainContent) {
+                mainContent.style.overflow = 'hidden';
+            }
+
+            // Hide all page content except the modal
+            const allChildren = Array.from(document.body.children);
+            allChildren.forEach(child => {
+                if (child.id !== 'roleLoginOverlay') {
+                    child.style.display = 'none';
+                }
+            });
+
+            const overlay = document.createElement('div');
+            overlay.id = 'roleLoginOverlay';
+            overlay.className = 'modal-overlay';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #fff; z-index: 99999; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 20px; animation: fadeIn 0.2s ease;';
+
+            overlay.innerHTML = `
+                <div class="modal-content" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 2px 8px rgba(26, 68, 128, 0.04), 0 8px 32px rgba(26, 68, 128, 0.06); max-width: 450px; width: 90%; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; position: relative;" onclick="event.stopPropagation()">
+                    <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #1a4480; border-radius: 12px 12px 0 0;"></div>
+                    <div style="padding: 24px 24px 16px; border-bottom: 1px solid #EDF2F7;">
+                        <h2 style="font-size: 1.15rem; font-weight: 400; color: #1C2331; margin: 0; letter-spacing: -0.01em;">${roleName} Login Required</h2>
+                    </div>
+                    <div style="padding: 20px 24px;">
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a; font-size: 0.875rem;">Session ID or Name:</label>
+                            <input type="text" id="roleLoginSession" placeholder="Enter session ID or name" 
+                                   style="width: 100%; padding: 12px 14px; border: 1px solid #EDF2F7; border-radius: 8px; box-sizing: border-box; font-size: 0.9375rem; font-family: 'Inter', sans-serif; background: #FAFAFA; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);"
+                                   autocomplete="off"
+                                   onfocus="this.style.borderColor='#1a4480'; this.style.boxShadow='0 0 0 3px rgba(26, 68, 128, 0.1)'; this.style.background='#FFFFFF'"
+                                   onblur="this.style.borderColor='#EDF2F7'; this.style.boxShadow='none'; this.style.background='#FAFAFA'">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1a1a1a; font-size: 0.875rem;">Password:</label>
+                            <input type="password" id="roleLoginPassword" 
+                                   style="width: 100%; padding: 12px 14px; border: 1px solid #EDF2F7; border-radius: 8px; box-sizing: border-box; font-size: 0.9375rem; font-family: 'Inter', sans-serif; background: #FAFAFA; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);"
+                                   onkeypress="if(event.key === 'Enter') attemptRoleLogin('${role}')"
+                                   onfocus="this.style.borderColor='#1a4480'; this.style.boxShadow='0 0 0 3px rgba(26, 68, 128, 0.1)'; this.style.background='#FFFFFF'"
+                                   onblur="this.style.borderColor='#EDF2F7'; this.style.boxShadow='none'; this.style.background='#FAFAFA'">
+                        </div>
+                    </div>
+                    <div style="padding: 16px 24px 24px; border-top: 1px solid #EDF2F7; display: flex; gap: 12px; justify-content: flex-end;">
+                        <button onclick="closeRoleLoginPrompt()" 
+                                class="modal-btn-secondary"
+                                style="padding: 12px 14px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #EDF2F7; background: #FAFAFA; color: #1C2331; display: inline-flex; align-items: center; gap: 8px;">
+                            Cancel
+                        </button>
+                        <button onclick="attemptRoleLogin('${role}')" 
+                                class="modal-btn-primary"
+                                style="padding: 12px 14px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #1a4480; background: #1a4480; color: white; display: inline-flex; align-items: center; gap: 8px;">
+                            Login
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            setTimeout(() => {
+                const sessionInput = document.getElementById('roleLoginSession');
+                if (sessionInput) sessionInput.focus();
+            }, 100);
+        }
+
+        function closeRoleLoginPrompt() {
+            const overlay = document.getElementById('roleLoginOverlay');
+            if (overlay) overlay.remove();
+
+            // Restore page content visibility
+            const mainContent = document.body;
+            if (mainContent) {
+                mainContent.style.overflow = '';
+            }
+
+            const allChildren = Array.from(document.body.children);
+            allChildren.forEach(child => {
+                child.style.display = '';
+            });
+
+            window.location.href = '../../index.html';
+        }
+
+        async function attemptRoleLogin(role) {
+            if (typeof window.esg === 'undefined') {
+                if (window.showAlertModal) {
+                    await window.showAlertModal('Authentication system not loaded. Please refresh the page.', 'System Error');
+                } else {
+                    alert('Authentication system not loaded. Please refresh the page.');
+                }
+                return;
+            }
+
+            const sessionInput = document.getElementById('roleLoginSession');
+            const passwordInput = document.getElementById('roleLoginPassword');
+            const sessionIdOrName = sessionInput ? sessionInput.value.trim() : '';
+            const password = passwordInput ? passwordInput.value : '';
+
+            if (!sessionIdOrName) {
+                if (window.showAlertModal) {
+                    await window.showAlertModal('Please enter a session ID or name', 'Session Required');
+                } else {
+                    alert('Please enter a session ID or name');
+                }
+                if (sessionInput) sessionInput.focus();
+                return;
+            }
+
+            if (!password) {
+                if (window.showAlertModal) {
+                    await window.showAlertModal('Please enter a password', 'Password Required');
+                } else {
+                    alert('Please enter a password');
+                }
+                if (passwordInput) passwordInput.focus();
+                return;
+            }
+
+            // First validate the role password
+            const passwordValid = window.esg.login(role, password);
+            if (!passwordValid) {
+                if (window.showAlertModal) {
+                    await window.showAlertModal('Invalid password. Please try again.', 'Authentication Failed');
+                } else {
+                    alert('Invalid password. Please try again.');
+                }
+                if (passwordInput) {
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+                return;
+            }
+
+            // Then find and join the session
+            try {
+                let sessionId = sessionIdOrName;
+
+                // Check if it's a session ID (UUID format) or a name
+                const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionIdOrName);
+
+                if (!isUUID) {
+                    // It's a name, search for the session
+                    const sessions = await window.esg.fetchAllSessions(true); // Include all sessions
+                    const matchingSession = sessions.find(s =>
+                        s.name && s.name.toLowerCase() === sessionIdOrName.toLowerCase()
+                    );
+
+                    if (!matchingSession) {
+                        if (window.showAlertModal) {
+                            await window.showAlertModal('Session not found. Please check the session name or ID.', 'Session Not Found');
+                        } else {
+                            alert('Session not found. Please check the session name or ID.');
+                        }
+                        if (sessionInput) {
+                            sessionInput.value = '';
+                            sessionInput.focus();
+                        }
+                        return;
+                    }
+
+                    sessionId = matchingSession.id;
+                }
+
+                // ========== NEW: Check role availability ==========
+                const availability = await window.esg.checkRoleAvailability(sessionId, role);
+
+                if (!availability.available) {
+                    if (availability.reason === 'role_full') {
+                        const roleName = window.esg.ROLE_DISPLAY_NAMES?.[role] || role;
+                        const action = await window.showRoleTakeoverDialog(roleName, availability);
+
+                        if (action === 'takeover') {
+                            // Disconnect existing participants
+                            await window.esg.disconnectExistingParticipants(sessionId, role);
+                        } else {
+                            return; // User cancelled
+                        }
+                    }
+                }
+                // ===================================================
+
+                // Join the session
+                const joinSuccess = await window.esg.joinSession(sessionId);
+                if (!joinSuccess) {
+                    if (window.showAlertModal) {
+                        await window.showAlertModal('Session not found or is no longer active. Please check the session ID or name.', 'Session Not Found');
+                    } else {
+                        alert('Session not found or is no longer active. Please check the session ID or name.');
+                    }
+                    if (sessionInput) {
+                        sessionInput.value = '';
+                        sessionInput.focus();
+                    }
+                    return;
+                }
+
+                // ========== NEW: Register as session participant ==========
+                const clientId = sessionStorage.getItem('esg_client_id');
+                const registration = await window.esg.registerSessionParticipant(sessionId, clientId, role);
+
+                if (!registration) {
+                    console.warn('Failed to register session participant, but allowing login');
+                }
+
+                // ========== NEW: Start heartbeat ==========
+                if (window.researchTracking?.startParticipantHeartbeat) {
+                    window.researchTracking.startParticipantHeartbeat();
+                }
+                // ===========================================
+
+                // Success! Remove overlay and restore page
+                const overlay = document.getElementById('roleLoginOverlay');
+                if (overlay) overlay.remove();
+
+                // Restore page content visibility
+                const mainContent = document.body;
+                if (mainContent) {
+                    mainContent.style.overflow = '';
+                }
+
+                const allChildren = Array.from(document.body.children);
+                allChildren.forEach(child => {
+                    child.style.display = '';
+                });
+
+                if (window.esg.showToast) {
+                    window.esg.showToast('Logged in and joined session successfully');
+                }
+                // Reload to apply authentication and session
+                window.location.reload();
+            } catch (error) {
+                console.error('Login error:', error);
+                if (window.showAlertModal) {
+                    await window.showAlertModal('Error joining session: ' + (error.message || 'Please try again.'), 'Error');
+                } else {
+                    alert('Error joining session: ' + (error.message || 'Please try again.'));
+                }
+            }
+        }
+
+        window.closeRoleLoginPrompt = closeRoleLoginPrompt;
+        window.attemptRoleLogin = attemptRoleLogin;
+
+        // Function to initialize navigation
+        function initializeNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                // Remove any existing listeners by cloning
+                const newItem = item.cloneNode(true);
+                item.parentNode.replaceChild(newItem, item);
+
+                // Add fresh listener
+                newItem.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    newItem.classList.add('active');
+
+                    const sectionId = newItem.getAttribute('data-section');
+                    document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+                    const targetSection = document.getElementById(sectionId);
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Function to reinitialize button event listeners
+        function reinitializeButtons() {
+            // Capture type tabs
+            document.querySelectorAll('.capture-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.capture-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const hintEl = document.getElementById('captureHint');
+                    if (hintEl) {
+                        const captureTypes = {
+                            note: 'General observations, team discussions, decisions being made...',
+                            moment: 'Significant turning point: decision made, position changed, consensus reached...',
+                            quote: 'Notable statement or memorable phrasing from a participant...',
+                            requestinfo: 'Team requesting information from WHITE Cell or observers...'
+                        };
+                        hintEl.textContent = captureTypes[tab.getAttribute('data-type')] || '';
+                    }
+                });
+            });
+
+            // Faction tags
+            document.querySelectorAll('.faction-tag').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const wasSelected = btn.classList.contains('selected');
+                    document.querySelectorAll('.faction-tag').forEach(b => b.classList.remove('selected'));
+                    if (!wasSelected) {
+                        btn.classList.add('selected');
+                    }
+                });
+            });
+
+            // Debate markers
+            document.querySelectorAll('.debate-marker').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const wasSelected = btn.classList.contains('selected');
+                    document.querySelectorAll('.debate-marker').forEach(b => b.classList.remove('selected'));
+                    if (!wasSelected) {
+                        btn.classList.add('selected');
+                    }
+                });
+            });
+
+            // Quick buttons with data-group (Team Dynamics, Alliance sections)
+            document.querySelectorAll('.quick-btn[data-group]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const group = btn.getAttribute('data-group');
+                    document.querySelectorAll(`.quick-btn[data-group="${group}"]`).forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                });
+            });
+
+            // Filter buttons (Timeline section)
+            document.querySelectorAll('[data-filter]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+
+                    const filter = btn.getAttribute('data-filter');
+                    const items = document.querySelectorAll('.timeline-item');
+                    items.forEach(item => {
+                        if (filter === 'all' || item.classList.contains(filter)) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Scale sliders - update displayed values
+            const debateVsExecute = document.getElementById('debateVsExecute');
+            if (debateVsExecute) {
+                debateVsExecute.addEventListener('input', (e) => {
+                    const valueEl = document.getElementById('debateVsExecuteValue');
+                    if (valueEl) valueEl.textContent = e.target.value;
+                });
+            }
+
+            const debateIntensity = document.getElementById('debateIntensity');
+            if (debateIntensity) {
+                debateIntensity.addEventListener('input', (e) => {
+                    const valueEl = document.getElementById('debateValue');
+                    if (valueEl) valueEl.textContent = e.target.value;
+                });
+            }
+
+            const coalitionImpact = document.getElementById('coalitionImpact');
+            if (coalitionImpact) {
+                coalitionImpact.addEventListener('input', (e) => {
+                    const valueEl = document.getElementById('coalitionImpactValue');
+                    if (valueEl) valueEl.textContent = e.target.value;
+                });
+            }
+        }
+
+        // Hide loader after page is fully loaded
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            if (loader) {
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    loader.style.transition = 'opacity 0.3s ease';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        // Initialize navigation after loader is hidden
+                        initializeNavigation();
+                        // Reinitialize button event listeners
+                        reinitializeButtons();
+                    }, 300);
+                }, 500); // Small delay to ensure everything is initialized
+            } else {
+                // If no loader, initialize immediately
+                initializeNavigation();
+                reinitializeButtons();
+            }
+        });
+    </script>
+</body>
+
+</html>

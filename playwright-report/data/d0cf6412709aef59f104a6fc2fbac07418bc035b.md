@@ -1,0 +1,82 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - link "Home" [ref=e4] [cursor=pointer]:
+      - /url: index.html
+      - img "Home" [ref=e5]
+    - generic [ref=e6]:
+      - heading "Game Master Control" [level=1] [ref=e7]
+      - paragraph [ref=e8]: "Move 1: Epoch 1 (2027-2030)"
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]: Monitoring
+        - generic [ref=e14] [cursor=pointer]:
+          - generic [ref=e15]: Live Dashboard
+          - generic [ref=e16]: Real-time status
+        - generic [ref=e17] [cursor=pointer]:
+          - generic [ref=e18]:
+            - generic [ref=e19]: Master Timeline
+            - generic [ref=e20]: All team events
+          - generic [ref=e21]: "1"
+        - generic [ref=e22]: Adjudication
+        - generic [ref=e23] [cursor=pointer]:
+          - generic [ref=e24]:
+            - generic [ref=e25]: Review Actions
+            - generic [ref=e26]: Team submissions
+          - generic [ref=e27]: "1"
+        - generic [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: RFI Management
+            - generic [ref=e31]: Requests & responses
+          - generic [ref=e32]: "0"
+        - generic [ref=e33]: Administration
+        - generic [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: Session Control
+          - generic [ref=e37]: Create & manage
+        - generic [ref=e39] [cursor=pointer]:
+          - generic [ref=e40]: User Management
+          - generic [ref=e41]: Roles & access
+        - generic [ref=e43] [cursor=pointer]:
+          - generic [ref=e44]: Game Control
+          - generic [ref=e45]: Reset & Archive
+      - generic [ref=e46]:
+        - generic [ref=e47]: Global Timer
+        - generic [ref=e48]: 90:00
+        - generic [ref=e49]:
+          - button "Start" [ref=e50] [cursor=pointer]
+          - button "Pause" [ref=e51] [cursor=pointer]
+          - button "Reset" [ref=e52] [cursor=pointer]
+    - generic [ref=e54]:
+      - generic [ref=e55]:
+        - heading "Live Dashboard" [level=2] [ref=e56]
+        - paragraph [ref=e57]: Current simulation status and incoming data feeds
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - generic [ref=e60]: "1"
+          - generic [ref=e61]: Decisions Logged
+        - generic [ref=e62]:
+          - generic [ref=e63]: "0"
+          - generic [ref=e64]: Observer Notes
+        - generic [ref=e65]:
+          - generic [ref=e66]: Phase 1
+          - generic [ref=e67]: Current Status
+      - generic [ref=e68]:
+        - heading "Recent Activity" [level=3] [ref=e69]
+        - generic [ref=e71]:
+          - generic [ref=e72]: 2:56:39 PM • ACTION
+          - generic [ref=e73]: sanctions submitted (biotechnology)
+  - generic [ref=e75]:
+    - generic [ref=e77]:
+      - heading [level=2]
+    - generic [ref=e78]:
+      - paragraph [ref=e79]: Please log in to access the Game Master Control Panel.
+      - generic [ref=e80]:
+        - generic [ref=e81]: "Password:"
+        - textbox [active] [ref=e82]
+    - generic [ref=e83]:
+      - button "Cancel" [ref=e84] [cursor=pointer]
+      - button "Login" [ref=e85] [cursor=pointer]
+```

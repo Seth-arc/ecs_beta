@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statecraft Simulation | Demo</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/simulation-theme.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+    </style>
+</head>
+
+<body>
+    <div id="loader" aria-label="Loading simulation environment">
+        <div class="loader-globe">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.2" />
+                <ellipse cx="24" cy="24" rx="22" ry="10" stroke="currentColor" stroke-width="1.5" fill="none"
+                    opacity="0.3" />
+                <ellipse cx="24" cy="24" rx="10" ry="22" stroke="currentColor" stroke-width="1.5" fill="none"
+                    opacity="0.3" />
+                <path d="M2 24h44" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                <path d="M24 2v44" stroke="currentColor" stroke-width="1.5" opacity="0.25" />
+                <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="1.5" fill="none" />
+            </svg>
+            <div class="loader-ring"></div>
+        </div>
+    </div>
+
+    <div class="classification-banner">
+        Demo V.1 BETA
+    </div>
+
+    <header>
+        <div class="header-inner">
+            <a href="#" class="brand">
+                <div class="brand-text">
+                    <span class="brand-subtitle">Strategic Simulation Group</span>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-eyebrow">Economic Competition Simulation</div>
+        </section>
+
+        <section class="teams-section">
+            <div class="section-label">Select Team Assignment</div>
+            <div class="card-grid">
+                <div class="team-card blue-card">
+                    <div class="card-header">
+                        <span class="team-indicator"></span>
+                        <span class="team-label">Blue Team</span>
+                        <span class="team-designation"></span>
+                    </div>
+                    <div class="link-rail">
+                        <a class="role-link" id="link-blue-facilitator" href="teams/blue/blue_facilitator.html">
+                            <span>Facilitator</span>
+                            <svg class="link-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M6 4l4 4-4 4" />
+                            </svg>
+                        </a>
+                        <a class="role-link" id="link-blue-notetaker" href="teams/blue/blue_notetaker.html">
+                            <span>Notetaker</span>
+                            <svg class="link-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M6 4l4 4-4 4" />
+                            </svg>
+                        </a>
+                        <a class="role-link" id="link-blue-white" href="teams/blue/blue_white_cell.html">
+                            <span>White Cell</span>
+                            <svg class="link-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M6 4l4 4-4 4" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="team-card green-card inactive-card">
+                    <div class="card-header">
+                        <span class="team-indicator"></span>
+                        <span class="team-label">Green Team</span>
+                        <span class="team-designation">Allies</span>
+                    </div>
+                    <div class="link-rail">
+                        <a class="role-link" href="#"
+                            onclick="alert('Green Team Facilitator role is not available in this demo.'); return false;"
+                            style="opacity: 0.5; cursor: not-allowed;">
+                            <span>Facilitator</span>
+                            <svg class="link-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M6 4l4 4-4 4" />
+                            </svg>
+                        </a>
+                        <a class="role-link" href="#"
+                            onclick="alert('Green Team role is not available in this demo.'); return false;"
+                            style="opacity: 0.5; cursor: not-allowed;">
+                            <span>Notetaker</span>
+                            <svg class="link-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M6 4l4 4-4 4" />
+                            </svg>
+                        </a>
+                        <a class="role-link" href="#"
+                            onclick="alert('Green Team role is not available in this demo.'); return false;"
+                            style="opacity: 0.5; cursor: not-allowed;">
+                            <span>White Cell</span>
+                            <svg class="link-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M6 4l4 4-4 4" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="team-card red-card inactive-card">
+                    <div class="card-header">
+                        <span class="team-indicator"></span>
+                        <span class="team-label">Red Team</span>
+                        <span class="team-designation">Adversary Cell</span>
+                    </div>
+                    <div class="link-rail">
+                        <a class="role-link" href="#"
+                            onclick="alert('Red Team role is not available in this demo.'); return false;"
+                            style="opacity: 0.5; cursor: not-allowed;">
+                            <span>Notetaker</span>
+                            <svg class="link-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M6 4l4 4-4 4" />
+                            </svg>
+                        </a>
+                        <a class="role-link" href="#"
+                            onclick="alert('Red Team role is not available in this demo.'); return false;"
+                            style="opacity: 0.5; cursor: not-allowed;">
+                            <span>White Cell</span>
+                            <svg class="link-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M6 4l4 4-4 4" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="control-section">
+            <div class="link-rail">
+                <a class="role-link" id="link-game-master" href="master.html">
+                    <span>Open Control Panel</span>
+                    <svg class="link-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M6 4l4 4-4 4" />
+                    </svg>
+                </a>
+            </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
