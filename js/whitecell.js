@@ -868,7 +868,10 @@ async function populateActionSelector() {
     const selector = document.getElementById('adj-action-selector');
     if (!selector) return;
 
-    // Clear existing options except the first one
+    // Preserve the current selection
+    const prevValue = selector.value;
+
+    // Remove all options
     selector.innerHTML = '<option value="">-- Select an action to adjudicate --</option>';
 
     let actions = [];
@@ -932,7 +935,17 @@ async function populateActionSelector() {
         selector.appendChild(option);
     });
 
-    selector.addEventListener('change', function () {
+    // Remove previous event listeners by replacing the element
+    const newSelector = selector.cloneNode(true);
+    selector.parentNode.replaceChild(newSelector, selector);
+
+    // Restore previous selection if possible
+    if (prevValue && newSelector.querySelector(`option[value="${prevValue}"]`)) {
+        newSelector.value = prevValue;
+        displaySelectedActionDetails(prevValue, actions);
+    }
+
+    newSelector.addEventListener('change', function () {
         displaySelectedActionDetails(this.value, actions);
     });
 }
